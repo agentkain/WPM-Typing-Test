@@ -1,0 +1,16 @@
+# Proprietary License
+
+© 2024 Chi Alexander. All rights reserved.
+
+This software, the "Ultimate WPM Typing Speed Test", is provided 'as-is,' without any express or implied warranty. In no event will the author be held liable for any damages arising from the use of this software.
+
+Permission is hereby granted to use this software for personal and commercial purposes, subject to the following conditions:
+
+1. **Usage:** Users are allowed to use this software on any number of devices for personal and commercial purposes.
+2. **Modification:** Users may modify the software for personal use. However, distribution of modified versions is not permitted without explicit permission from the copyright holder.
+3. **Distribution:** Redistribution of this software, in its original or modified form, is not permitted without prior written consent from the copyright holder.
+4. **Sublicensing:** Users are not allowed to sublicense, resell, rent, lease, or distribute the software to third parties without explicit permission from the copyright holder.
+5. **Attribution:** Users must retain the original copyright notice in any copies or substantial portions of the software.
+6. **Data Storage:** User progress data is stored locally in the user's browser. The copyright holder is not responsible for any loss of data due to browser data clearing or device changes.
+
+By using this software, you agree to abide by the terms of this license.

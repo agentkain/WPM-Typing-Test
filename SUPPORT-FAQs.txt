@@ -1,0 +1,56 @@
+# Support - Frequently Asked Questions (FAQs)
+
+## General Usage
+
+### Q: How do I change the difficulty level?
+A: Use the difficulty slider at the top of the page to select Beginner, Intermediate, or Advanced before starting the test.
+
+### Q: Can I change the test duration?
+A: Yes, click on the time options below the timer to select from 30s, 1m, 2m, 3m, 5m, or 10m durations.
+
+### Q: How do I adjust the text size?
+A: Click the "Select text size" button and use the slider to choose from Small, Medium, Large, or Extra Large options.
+
+## Features
+
+### Q: What keyboard layouts are supported?
+A: The test supports QWERTY, Dvorak, Colemak, QWERTZ, and AZERTY layouts. Select your preferred layout from the dropdown menu.
+
+### Q: Can I use my own text for the typing test?
+A: Yes, click the "Use Custom Text" button to input your own text or generate random words with optional punctuation.
+
+### Q: What is the keyboard heatmap?
+A: The keyboard heatmap visually represents your typing patterns, highlighting frequently used keys. Toggle it on or off using the switch above the keyboard layout.
+
+## Progress and Data
+
+### Q: How is my progress saved?
+A: Your progress is saved locally in your browser's storage. It persists across sessions unless you clear your browser data.
+
+### Q: Can I access my progress on different devices?
+A: No, progress data is stored locally and is not synced across devices or browsers.
+
+### Q: How do I view my typing progress?
+A: Click the "View Progress" button to see your typing history, statistics, and achievements.
+
+### Q: How can I reset my progress?
+A: In the progress modal, click the "Reset Progress" button and confirm the action.
+
+## Troubleshooting
+
+### Issue: The test doesn't start when I click "Start Test"
+- Ensure you've selected a difficulty level using the slider at the top of the page.
+- Check if your browser supports JavaScript and has it enabled.
+
+### Issue: My progress data is missing
+- Verify that you haven't cleared your browser data recently.
+- Confirm you're using the same browser and device where you previously took the tests.
+
+### Issue: The keyboard layout doesn't match my physical keyboard
+- Select the correct layout from the dropdown menu in the keyboard controls section.
+
+## Contact
+
+If you need further assistance or have suggestions for improvement, please contact the developer through the provided channels.
+
+© 2024 Chi Alexander. All rights reserved.

@@ -3455,13 +3455,28 @@ body.dark-mode .tooltip-text {
             name: 'Consistent 95% Accuracy',
             description: 'Maintain an accuracy of 95% or higher for five consecutive tests',
             condition: (results) => {
-                if (results.length < 5) return false;
-                return results.slice(-5).every(r => r.accuracy >= 95);
+                let consecutiveCount = 0;
+                for (let i = results.length - 1; i >= 0; i--) {
+                    if (results[i].accuracy >= 95) {
+                        consecutiveCount++;
+                        if (consecutiveCount === 5) return true;
+                    } else {
+                        break;
+                    }
+                }
+                return false;
             },
             progressCalculation: (results) => {
-                const lastFive = results.slice(-5);
-                const count = lastFive.filter(r => r.accuracy >= 95).length;
-                return Math.min(100, (count / 5) * 100);
+                let consecutiveCount = 0;
+                for (let i = results.length - 1; i >= 0; i--) {
+                    if (results[i].accuracy >= 95) {
+                        consecutiveCount++;
+                        if (consecutiveCount === 5) break;
+                    } else {
+                        break;
+                    }
+                }
+                return Math.min(100, (consecutiveCount / 5) * 100);
             }
         },
         {
@@ -3477,8 +3492,7 @@ body.dark-mode .tooltip-text {
             description: 'Complete a test with zero mistakes',
             condition: (results) => results.some(r => r.accuracy === 100),
             progressCalculation: (results) => {
-                const bestAccuracy = Math.max(...results.map(r => r.accuracy));
-                return Math.min(100, bestAccuracy);
+                return results.some(r => r.accuracy === 100) ? 100 : 0;
             }
         },
         {
@@ -3519,8 +3533,7 @@ body.dark-mode .tooltip-text {
             description: 'Achieve 100% accuracy in any test',
             condition: (results) => results.some(r => r.accuracy === 100),
             progressCalculation: (results) => {
-                const bestAccuracy = Math.max(...results.map(r => r.accuracy));
-                return bestAccuracy;
+                return results.some(r => r.accuracy === 100) ? 100 : 0;
             }
         },
         {
@@ -3550,8 +3563,16 @@ body.dark-mode .tooltip-text {
             name: 'Accuracy Expert',
             description: 'Maintain an accuracy of 98% or higher for 10 consecutive tests',
             condition: (results) => {
-                const recentTests = results.slice(-10);
-                return recentTests.length === 10 && recentTests.every(r => r.accuracy >= 98);
+                let consecutiveTests = 0;
+                for (let i = results.length - 1; i >= 0; i--) {
+                    if (results[i].accuracy >= 98) {
+                        consecutiveTests++;
+                        if (consecutiveTests === 10) return true;
+                    } else {
+                        break;
+                    }
+                }
+                return false;
             },
             progressCalculation: (results) => {
                 const recentTests = results.slice(-10);
@@ -3679,6 +3700,7 @@ body.dark-mode .tooltip-text {
             id: 'nooice',
             name: 'NOOICE',
             description: 'Get 69 WPM or 69% Overall accuracy',
+            hidden: true,
             condition: (results) => results.some(r => r.wpm === 69 || r.accuracy === 69),
             progressCalculation: (results) => {
                 const closestWpm = Math.min(...results.map(r => Math.abs(r.wpm - 69)));
@@ -3692,7 +3714,7 @@ body.dark-mode .tooltip-text {
             name: 'Speed Demon',
             description: 'Achieve a typing speed of 100 WPM',
             condition: (results) => results.some(r => r.wpm >= 100),
-            progressCalculation: (results) => Math.min(100, Math.max(...results.map(r => r.wpm)) / 100 * 100)
+            progressCalculation: (results) => results.some(r => r.wpm >= 100) ? 100 : 0
         },
 
         {

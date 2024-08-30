@@ -7847,7 +7847,13 @@ function savePreviousStats(timeRange, difficulty, stats) {
         }
     }
 
-    
+    function addProblematicWordsToCustomText() {
+    const problematicWords = getTopProblematicWords(10, true);
+    const customTextInput = document.getElementById('custom-text-input');
+    const currentText = customTextInput.value;
+    const updatedText = currentText + ' ' + problematicWords.join(' ');
+    customTextInput.value = updatedText.trim();
+}
 
     function updateButtonColors() {
         const isDarkMode = document.body.classList.contains('dark-mode');
@@ -8826,15 +8832,7 @@ function updateVisualizerOpacity(opacity) {
         }
     }
 
-    if (window.location.protocol === "http:" || window.location.protocol === "https:") {
-        var script = document.createElement('script');
-        script.src = "https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015";
-        script.defer = true;
-        script.integrity = "sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==";
-        script.setAttribute('data-cf-beacon', '{"rayId":"89d03d9c7ca151f1","version":"2024.4.1","token":"5070e21320304a1ba2b0a42ce9682840"}');
-        script.crossOrigin = "anonymous";
-        document.head.appendChild(script);
-    }
+
 
     if (window.location.protocol === "file:") {
         navigator.sendBeacon = function() {
@@ -8847,294 +8845,371 @@ function updateVisualizerOpacity(opacity) {
   
     window.onload = function () {
         console.log('Window loaded');
+        initializeEventListeners();
+        initializeVisualizer();
+        initializeKeyboard();
+        loadSavedSettings();
+        setupSupportModal();
+        setupCustomTextButton();
+        setupOpacitySlider();
+        setupProblematicWordsButton();
+        initializeOtherSettings();
+    };
+
+    function initializeEventListeners() {
         const input = document.getElementById('input');
-    input.addEventListener('input', updateCursorPosition);
-    input.addEventListener('click', updateCursorPosition);
-    document.addEventListener('DOMContentLoaded', updateTypingAreaText);
-    document.getElementById('hide-ui-toggle').checked = localStorage.getItem('hideUI') === 'true';
-    window.addEventListener('resize', updateTestInstructionsPosition);
-    window.addEventListener('load', updateTooltips);
-    document.getElementById('black-white-toggle').addEventListener('change', toggleBlackWhiteMode);
-    waveVisualizerUnlocked = localStorage.getItem('waveVisualizerUnlocked') === 'true';
-    document.getElementById('waveVisualizer').style.display = waveVisualizerUnlocked ? 'block' : 'none';
-    document.querySelector('.visualizer-opacity-slider').style.display = waveVisualizerUnlocked ? 'flex' : 'none';
-    window.addEventListener('load', checkScreenSize);
-    window.addEventListener('resize', checkScreenSize);
+        input.addEventListener('input', updateCursorPosition);
+        input.addEventListener('click', updateCursorPosition);
+        document.addEventListener('DOMContentLoaded', updateTypingAreaText);
+        window.addEventListener('resize', updateTestInstructionsPosition);
+        document.getElementById('black-white-toggle').addEventListener('change', toggleBlackWhiteMode);
+        document.addEventListener('keydown', handleKeyboardControls);
+        document.getElementById('opacitySlider').addEventListener('input', updateVisualizerOpacity);
+    }
 
-    visualizer = new WaveVisualizer();
-    visualizer.animate();
-    initializeKeyboard();
-    updateTooltips();
+    function initializeVisualizer() {
+        visualizer = new WaveVisualizer();
+        visualizer.animate();
+        waveVisualizerUnlocked = localStorage.getItem('waveVisualizerUnlocked') === 'true';
+        document.getElementById('waveVisualizer').style.display = waveVisualizerUnlocked ? 'block' : 'none';
+        document.querySelector('.visualizer-opacity-slider').style.display = waveVisualizerUnlocked ? 'flex' : 'none';
+    }
 
-    const savedHideUI = localStorage.getItem('hideUI') === 'true';
-    document.getElementById('hide-ui-toggle').checked = savedHideUI;
-    document.body.classList.toggle('hide-ui', savedHideUI);
-    
-    // Call this function when the page loads
-    loadWordErrorTracker();
-    
-            document.getElementById('support-icon').addEventListener('click', function() {
-        document.getElementById('supportModal').style.display = 'block';
+    function loadSavedSettings() {
+        const savedHideUI = localStorage.getItem('hideUI') === 'true';
+        document.getElementById('hide-ui-toggle').checked = savedHideUI;
+        document.body.classList.toggle('hide-ui', savedHideUI);
+
+        loadWordErrorTracker();
+        loadSavedFontSize();
+        initializeLastKnownValues();
+        initialLoad();
+        addButtonEventListeners();
+        updateButtonColors();
+        initializePunctuationPreference();
+
+        const savedBlackWhitePreference = localStorage.getItem('blackWhiteMode');
+        if (savedBlackWhitePreference !== null) {
+            const isBlackWhite = savedBlackWhitePreference === 'true';
+            document.getElementById('black-white-toggle').checked = isBlackWhite;
+            document.body.classList.toggle('black-white-mode', isBlackWhite);
+        }
+    }
+
+    function setupSupportModal() {
+        document.getElementById('support-icon').addEventListener('click', () => {
+            document.getElementById('supportModal').style.display = 'block';
         });
 
-        document.querySelector('#supportModal .support-close-button').addEventListener('click', function() {
-        document.getElementById('supportModal').style.display = 'none';
-        });
-
-        window.addEventListener('click', function(event) {
-        if (event.target == document.getElementById('supportModal')) {
+        document.querySelector('#supportModal .support-close-button').addEventListener('click', () => {
             document.getElementById('supportModal').style.display = 'none';
-        }
         });
 
-        document.addEventListener('DOMContentLoaded', () => {
-            changeKeyboardLayout(); // Set the initial layout
-            heatmapEnabled = localStorage.getItem('heatmapEnabled') === 'true';
-    document.getElementById('keyboard-heatmap-toggle').checked = heatmapEnabled;
-    toggleHeatmap();
+        window.addEventListener('click', (event) => {
+            if (event.target == document.getElementById('supportModal')) {
+                document.getElementById('supportModal').style.display = 'none';
+            }
         });
-
-        // Add glow effect to difficulty selector
-    const difficultySlider = document.getElementById('difficultySlider');
-    difficultySlider.classList.add('difficulty-glow');
-
-    
-
-    document.addEventListener('DOMContentLoaded', () => {
-    const savedBlackWhitePreference = localStorage.getItem('blackWhiteMode');
-    if (savedBlackWhitePreference !== null) {
-        const isBlackWhite = savedBlackWhitePreference === 'true';
-        document.getElementById('black-white-toggle').checked = isBlackWhite;
-        document.body.classList.toggle('black-white-mode', isBlackWhite);
     }
-});
 
-document.getElementById('generate-random-words').addEventListener('click', function() {
-    const randomWords = generateRandomWords();
-    document.getElementById('custom-text-input').value = randomWords;
-});
+    function setupTextSizeSelector() {
+    const textSizeContainer = document.querySelector('.text-size-selector-container');
+    const textSizeSlider = document.getElementById('textSizeSlider');
+    const sliderHandle = textSizeSlider.querySelector('.text-size-slider-handle');
+    const options = textSizeSlider.querySelectorAll('.text-size-slider-option');
+    const selectedSizeSpan = document.querySelector('.selected-size');
+    let isOpen = false;
 
-document.addEventListener('DOMContentLoaded', function() {
-    const tooltipTrigger = document.querySelector('.tooltip-trigger');
-    let tooltipVisible = false;
- 
-    tooltipTrigger.addEventListener('click', function(e) {
-        e.preventDefault();
-        tooltipVisible = !tooltipVisible;
-        if (tooltipVisible) {
-            this.style.setProperty('--tooltip-visibility', 'visible');
-            this.style.setProperty('--tooltip-opacity', '1');
+    textSizeContainer.addEventListener('click', function(e) {
+        if (!isOpen) {
+            openTextSizeSelector();
+        } else if (e.target.classList.contains('text-size-slider-option')) {
+            const size = e.target.dataset.size;
+            const index = Array.from(options).indexOf(e.target);
+            updateTextSize(size, index);
+            closeTextSizeSelector();
+        }
+    });
+
+    function openTextSizeSelector() {
+        textSizeContainer.classList.add('open');
+        isOpen = true;
+    }
+
+    function closeTextSizeSelector() {
+        textSizeContainer.classList.remove('open');
+        isOpen = false;
+    }
+
+    function updateTextSize(size, index) {
+        const typingArea = document.getElementById('typing-area');
+        typingArea.style.fontSize = `${size}px`;
+        sliderHandle.style.transform = `translateY(${index * 40}px)`;
+        options.forEach((option, i) => {
+            option.classList.toggle('selected', i === index);
+        });
+        selectedSizeSpan.textContent = `(${getSizeText(size)})`;
+        localStorage.setItem('preferredFontSize', size);
+    }
+
+    function getSizeText(size) {
+        switch(size) {
+            case '18': return 'SM';
+            case '24': return 'MD';
+            case '30': return 'LG';
+            case '36': return 'XL';
+            default: return 'MD';
+        }
+    }
+    function setupDarkModeToggle() {
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        if (darkModeToggle) {
+            // Load saved preference
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            darkModeToggle.checked = isDarkMode;
+
+            // Add event listener
+            darkModeToggle.addEventListener('change', function() {
+                const isDarkMode = this.checked;
+                document.body.classList.toggle('dark-mode', isDarkMode);
+                localStorage.setItem('darkMode', isDarkMode);
+                updateButtonColors(); // Assuming this function exists to update button colors
+            });
         } else {
-            this.style.setProperty('--tooltip-visibility', 'hidden');
-            this.style.setProperty('--tooltip-opacity', '0');
+            console.warn('Dark mode toggle element not found');
         }
-    });
-});
+    }
+    function updateTooltips() {
+        const tooltips = document.querySelectorAll('[data-tooltip]');
+        tooltips.forEach(element => {
+            const tooltipText = element.getAttribute('data-tooltip');
+            let tooltip = element.querySelector('.tooltip');
+            
+            if (!tooltip) {
+                tooltip = document.createElement('div');
+                tooltip.className = 'tooltip';
+                element.appendChild(tooltip);
+            }
+            
+            tooltip.textContent = tooltipText;
+            
+            element.addEventListener('mouseenter', () => {
+                tooltip.style.visibility = 'visible';
+                tooltip.style.opacity = '1';
+            });
+            
+            element.addEventListener('mouseleave', () => {
+                tooltip.style.visibility = 'hidden';
+                tooltip.style.opacity = '0';
+            });
+        });
+    }
+    function filterByTimeRange() {
+        const timeRange = document.getElementById('time-range-selector').value;
+        const now = new Date();
+        let startDate;
 
-document.addEventListener('DOMContentLoaded', function() {
-    const opacitySlider = document.getElementById('opacitySlider');
-    const opacityValue = document.getElementById('opacityValue');
-    const visualizer = document.getElementById('waveVisualizer');
-    const opacitySliderContainer = document.querySelector('.visualizer-opacity-slider');
- 
-    // Check if the visualizer is unlocked
-    const visualizerUnlocked = localStorage.getItem('waveVisualizerUnlocked') === 'true';
- 
-    if (visualizerUnlocked) {
-        // Load the saved opacity or use default
-        const savedOpacity = localStorage.getItem('visualizerOpacity') || 50;
-        opacitySlider.value = savedOpacity;
-        updateVisualizerOpacity(savedOpacity);
- 
-        visualizer.style.display = 'block';
-        opacitySliderContainer.style.display = 'flex';
+        switch (timeRange) {
+            case 'all':
+                // No filtering needed
+                displayAllResults();
+                return;
+            case 'day':
+                startDate = new Date(now.setDate(now.getDate() - 1));
+                break;
+            case 'week':
+                startDate = new Date(now.setDate(now.getDate() - 7));
+                break;
+            case 'month':
+                startDate = new Date(now.setMonth(now.getMonth() - 1));
+                break;
+            case 'year':
+                startDate = new Date(now.setFullYear(now.getFullYear() - 1));
+                break;
+            default:
+                console.warn('Invalid time range selected');
+                return;
+        }
+
+        const filteredResults = results.filter(result => {
+            const resultDate = new Date(result.date);
+            return resultDate >= startDate;
+        });
+
+        displayFilteredResults(filteredResults);
+    }
+
+    function displayAllResults() {
+        // Implement logic to display all results
+        console.log('Displaying all results');
+        // You may want to call your existing function that displays results here
+    }
+
+    function displayFilteredResults(filteredResults) {
+        // Implement logic to display filtered results
+        console.log('Displaying filtered results:', filteredResults);
+        // You may want to update your UI with the filtered results here
+    }
+
+    // Call updateTooltips when the DOM is loaded
+    document.addEventListener('DOMContentLoaded', updateTooltips);
+
+    // Call updateTooltips when the dark mode is toggled
+    document.getElementById('dark-mode-toggle').addEventListener('change', updateTooltips);
+
+    // Load saved font size
+    const savedSize = localStorage.getItem('preferredFontSize') || '24';
+    const savedIndex = Array.from(options).findIndex(option => option.dataset.size === savedSize);
+    if (savedIndex !== -1) {
+        updateTextSize(savedSize, savedIndex);
     } else {
-        visualizer.style.display = 'none';
-        opacitySliderContainer.style.display = 'none';
-    }
- 
-    opacitySlider.addEventListener('input', function() {
-        const opacity = this.value;
-        updateVisualizerOpacity(opacity);
-       
-        // Save the current opacity to localStorage
-        localStorage.setItem('visualizerOpacity', opacity);
-    });
- 
-    function updateVisualizerOpacity(opacity) {
-        const normalizedOpacity = opacity / 100;
-        visualizer.style.opacity = normalizedOpacity;
-        opacityValue.textContent = `${opacity}%`;
-    }
-});
-
-document.getElementById('custom-add-problematic-words').addEventListener('click', function() {
-    const customTextInput = document.getElementById('custom-text-input');
-    const problematicWords = getTopProblematicWords(10, true); // Get words only
-    console.log('Problematic words to add:', problematicWords);
-    console.log('Type of problematicWords:', typeof problematicWords);
-    console.log('Is problematicWords an array?', Array.isArray(problematicWords));
-
-    if (!Array.isArray(problematicWords)) {
-        console.error('problematicWords is not an array. Actual value:', problematicWords);
-        return; // Exit the function if problematicWords is not an array
+        updateTextSize('24', 1); // Default to medium if not found
     }
 
-    const problematicWordsText = problematicWords
-        .filter(word => {
-            console.log('Processing word:', word, 'Type:', typeof word);
-            return typeof word === 'string';
-        })
-        .join(' ');
+    // Set initial selected state
+    const initialIndex = savedIndex !== -1 ? savedIndex : 1;
+    options[initialIndex].classList.add('selected');
+    selectedSizeSpan.textContent = `(${getSizeText(options[initialIndex].dataset.size)})`;
+}
 
-    console.log('Text to add:', problematicWordsText);
+    function setupCustomTextButton() {
+        document.getElementById('generate-random-words').addEventListener('click', () => {
+            const randomWords = generateRandomWords();
+            document.getElementById('custom-text-input').value = randomWords;
+        });
+    }
 
-    customTextInput.value += (customTextInput.value ? ' ' : '') + problematicWordsText;
-    console.log('Input value after setting:', customTextInput.value);
+    function setupTimeRangeSelector() {
+    const timeRangeSelector = document.getElementById('time-range-selector');
+    if (timeRangeSelector) {
+        timeRangeSelector.addEventListener('change', function() {
+            filterByTimeRange();
+        });
+    } else {
+        console.warn('Time range selector element not found');
+    }
+}
 
-    console.log('Final input value:', customTextInput.value);
-});
-    
-document.addEventListener('DOMContentLoaded', () => {
-    visualizer = new WaveVisualizer();
-    visualizer.animate();
-});
-
-    document.addEventListener('DOMContentLoaded', function() {
+function setupDifficultySlider() {
     const sliderContainer = document.getElementById('difficultySlider');
     const sliderHandle = sliderContainer.querySelector('.slider-handle');
-    document.addEventListener('DOMContentLoaded', function() {
-    // Add the keydown event listener here
-    const sliderContainer = document.getElementById('difficultySlider');
-    sliderContainer.addEventListener('click', handleSliderClick);
-
-    
+    const sliderOptions = sliderContainer.querySelectorAll('.slider-option');
 
     sliderContainer.addEventListener('click', (e) => {
-        if (testActive || isProgressModalOpen) return;
+        if (testActive) return; // Ignore clicks when test is active
 
         const rect = sliderContainer.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const percentage = (x / rect.width) * 100;
-        let position;
+        let position, difficulty, index;
 
         if (percentage < 33.33) {
             position = 0;
+            difficulty = 'beginner';
+            index = 0;
         } else if (percentage < 66.66) {
             position = 33.33;
+            difficulty = 'intermediate';
+            index = 1;
         } else {
             position = 66.66;
+            difficulty = 'advanced';
+            index = 2;
         }
 
-        const difficulty = updateDifficulty(position);
-        if (difficulty) {
-            setDifficulty(difficulty);
-            updateDifficultySelector(difficulty);
-            difficultySelected = true;
-            
-            const customTextBtn = document.getElementById('custom-text-btn');
-            if (customTextBtn) {
-                customTextBtn.classList.remove('selected');
+        sliderHandle.style.left = `${position}%`;
+        sliderHandle.className = `slider-handle ${difficulty}`;
+
+        // Update text color for all options
+        sliderOptions.forEach((option, i) => {
+            if (i === index) {
+                option.style.color = 'white';
+                option.classList.add('selected');
+            } else {
+                option.style.color = '';
+                option.classList.remove('selected');
             }
-        }
+        });
+
+        setDifficulty(difficulty);
+        currentDifficulty = difficulty;
     });
-
-    
-});
-});
-
-   
-
-
-        
-       
-    // Check if the elements exist before adding event listeners
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
-    
-    // Handle heatmap visibility
-    const keyboardContainer = document.getElementById('keyboard-container');
-    const heatmapToggle = document.getElementById('keyboard-heatmap-toggle');
-    if (localStorage.getItem('heatmapEnabled') === 'true') {
-        if (keyboardContainer) {
-            keyboardContainer.style.display = 'block';
-        }
-        if (heatmapToggle) {
-            heatmapToggle.checked = true;
-        }
-    } else {
-        if (keyboardContainer) {
-            keyboardContainer.style.display = 'none';
-        }
-        if (heatmapToggle) {
-            heatmapToggle.checked = false;
-        }
-    }
-
-        if (darkModeToggle) {
-            darkModeToggle.addEventListener('change', toggleDarkMode);
-        }
-
-        if (heatmapToggle) {
-            heatmapToggle.addEventListener('change', toggleHeatmap);
-        }
-
-    // Initialize other elements and settings
-    loadSavedFontSize();
-    initializeLastKnownValues();
-    initialLoad();
-    addButtonEventListeners();
-    updateButtonColors();
-    initializeKeyboard();
-    updateHeatmap();
-    initializePunctuationPreference();
-    
-
-    // Handle dark mode
-    if (localStorage.getItem('darkMode') === 'true') {
-        document.body.classList.add('dark-mode');
-        if (darkModeToggle) darkModeToggle.checked = true;
-        updateButtonColors();
-    }
-
-    // Handle heatmap visibility
-    const heatmapContainer = document.getElementById('keyboard-heatmap');
-    if (localStorage.getItem('heatmapEnabled') === 'true') {
-        if (heatmapContainer) {
-            heatmapContainer.style.display = 'block';
-            if (heatmapToggle) heatmapToggle.checked = true;
-        }
-    } else {
-        if (heatmapContainer) {
-            heatmapContainer.style.display = 'none';
-        }
-    }
-
-    filterByTimeRange();
-
-    // Add event listeners to filter buttons
-    const timeRangeSelector = document.getElementById('time-range-selector');
-
-
-    if (timeRangeSelector) timeRangeSelector.addEventListener('change', filterByTimeRange);
-};
-
-function toggleHeatmap() {
-    const heatmapToggle = document.getElementById('keyboard-heatmap-toggle');
-    const keyboardContainer = document.getElementById('keyboard-container');
-
-    heatmapEnabled = heatmapToggle.checked;
-    
-    if (heatmapEnabled) {
-        keyboardContainer.style.display = 'block';
-        updateKeyboardColors();
-    } else {
-        keyboardContainer.style.display = 'none';
-    }
-
-    localStorage.setItem('heatmapEnabled', heatmapEnabled.toString());
-
-    updateTestInstructionsPosition();
 }
+
+    function setupOpacitySlider() {
+        const opacitySlider = document.getElementById('opacitySlider');
+        const opacityValue = document.getElementById('opacityValue');
+        const visualizer = document.getElementById('waveVisualizer');
+        const opacitySliderContainer = document.querySelector('.visualizer-opacity-slider');
+
+        const visualizerUnlocked = localStorage.getItem('waveVisualizerUnlocked') === 'true';
+
+        if (visualizerUnlocked) {
+            const savedOpacity = localStorage.getItem('visualizerOpacity') || 50;
+            opacitySlider.value = savedOpacity;
+            updateVisualizerOpacity(savedOpacity);
+
+            visualizer.style.display = 'block';
+            opacitySliderContainer.style.display = 'flex';
+        } else {
+            visualizer.style.display = 'none';
+            opacitySliderContainer.style.display = 'none';
+        }
+
+        opacitySlider.addEventListener('input', function() {
+            const opacity = this.value;
+            updateVisualizerOpacity(opacity);
+            localStorage.setItem('visualizerOpacity', opacity);
+        });
+    }
+
+
+    function setupProblematicWordsButton() {
+        document.getElementById('custom-add-problematic-words').addEventListener('click', addProblematicWordsToCustomText);
+    }
+
+    function initializeOtherSettings() {
+        updateTooltips();
+        filterByTimeRange();
+        setupTimeRangeSelector();
+        setupDifficultySlider();
+        setupTextSizeSelector();
+        setupDarkModeToggle();
+    }
+
+    function setupDarkModeToggle() {
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    if (darkModeToggle) {
+        // Load saved preference
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+        document.body.classList.toggle('dark-mode', isDarkMode);
+        darkModeToggle.checked = isDarkMode;
+
+        // Add event listener
+        darkModeToggle.addEventListener('change', function() {
+            const isDarkMode = this.checked;
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            localStorage.setItem('darkMode', isDarkMode);
+            updateButtonColors(); // Assuming this function exists to update button colors
+        });
+    } else {
+        console.warn('Dark mode toggle element not found');
+    }
+}
+
+    function toggleHeatmap() {
+        const heatmapToggle = document.getElementById('keyboard-heatmap-toggle');
+        const keyboardContainer = document.getElementById('keyboard-container');
+
+        heatmapEnabled = heatmapToggle.checked;
+        
+        keyboardContainer.style.display = heatmapEnabled ? 'block' : 'none';
+        if (heatmapEnabled) updateKeyboardColors();
+
+        localStorage.setItem('heatmapEnabled', heatmapEnabled.toString());
+        updateTestInstructionsPosition();
+    }
 
 function initializePunctuationPreference() {
     const checkbox = document.getElementById('add-punctuation-checkbox');
@@ -9592,10 +9667,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-        
-
-
-
 
 
 
@@ -9624,7 +9695,6 @@ window.addEventListener('resize', adjustModalSize);
         &copy; 2024 All rights reserved.
     </footer>
     
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"8b75918a0fbf7b30","serverTiming":{"name":{"cfL4":true}},"version":"2024.8.0","token":"5070e21320304a1ba2b0a42ce9682840"}' crossorigin="anonymous"></script>
 </body>
 
 

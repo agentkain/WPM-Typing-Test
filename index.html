@@ -25,118 +25,76 @@
         */
 
         :root {
-    --beginner-color: #2ecc71;
-    --intermediate-color: #3498db;
-    --advanced-color: #9b59b6;
-    --all-levels-color: #34495e;
-    --beginner-text-color: #ffffff;
-    --intermediate-text-color: #ffffff;
-    --advanced-text-color: #ffffff;
-    --all-levels-text-color: #ffffff;
-    --reset-button-color: #d00002;
-    --reset-button-text-color: #ffffff;
-    --beginner-cursor-color: #2ecc71;
-    --intermediate-cursor-color: #3498db;
-    --advanced-cursor-color: #9b59b6;
+            --beginner-color: #2ecc71;
+            --intermediate-color: #3498db;
+            --advanced-color: #9b59b6;
+            --all-levels-color: #34495e;
+            --beginner-text-color: #ffffff;
+            --intermediate-text-color: #ffffff;
+            --advanced-text-color: #ffffff;
+            --all-levels-text-color: #ffffff;
+            --reset-button-color: #d00002;
+            --reset-button-text-color: #ffffff;
+            --beginner-cursor-color: #2ecc71;
+            --intermediate-cursor-color: #3498db;
+            --advanced-cursor-color: #9b59b6;
+        }
 
-}
+        #input:focus {
+            outline: none;
+            border-color: var(--highlight-color);
+        }
 
+        #input.border-beginner:focus { border-color: var(--beginner-color); }
+        #input.border-intermediate:focus { border-color: var(--intermediate-color); }
+        #input.border-advanced:focus { border-color: var(--advanced-color); }
 
+        #input.border-beginner { border-color: var(--beginner-color); }
+        #input.border-intermediate { border-color: var(--intermediate-color); }
+        #input.border-advanced { border-color: var(--advanced-color); }
 
-#input:focus {
-    outline: none;
-    border-color: var(--highlight-color);
-}
+        .switch input { opacity: 0; width: 0; height: 0; }
 
-#input.border-beginner:focus {
-    border-color: var(--beginner-color);
-}
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
 
-#input.border-intermediate:focus {
-    border-color: var(--intermediate-color);
-}
+        input:checked + .slider { background-color: #9a9a9a; }
+        input:checked + .slider:before { transform: translateX(26px); }
 
-#input.border-advanced:focus {
-    border-color: var(--advanced-color);
-}
+        input:checked + .slider:before {
+            transform: translateX(26px);
+            content: "🌙";
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: grayscale(100%);
+        }
 
-/* Ensure the default styles are also covered */
-#input.border-beginner {
-    border-color: var(--beginner-color);
-}
+        input:not(:checked) + .slider:before {
+            content: "☼";
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7e7e7e;
+        }
 
-#input.border-intermediate {
-    border-color: var(--intermediate-color);
-}
-
-#input.border-advanced {
-    border-color: var(--advanced-color);
-}
-
-
-
-
-
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
-    border-radius: 34px;
-}
-
-
-
-input:checked + .slider {
-    background-color: #9a9a9a;
-}
-
-input:checked + .slider:before {
-    transform: translateX(26px);
-}
-
-
-input:checked + .slider:before {
-  transform: translateX(26px);
-  content: "🌙"; /* Add the crescent moon emoji */
-  font-size: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  filter: grayscale(100%); /* Apply grayscale effect */
-}
-
-/* Optionally, add a different color for the unchecked state */
-input:not(:checked) + .slider:before {
-  content: "☼"; /* Add the sun emoji */
-  font-size: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #7e7e7e,
-  
-  
-}
-
-input:not(:checked) + .slider {
-  background-color: #eeeeee; /* Change this to your desired color */
-}
+        input:not(:checked) + .slider { background-color: #eeeeee; }
 
         #share-results-button {
             padding: 10px 20px;
-            background-color: #0cb431; /* Change this to your desired background color */
-            color: white; /* Change this to your desired text color */
+            background-color: #0cb431;
+            color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -144,15 +102,11 @@ input:not(:checked) + .slider {
             transition: background-color 0.3s ease;
         }
 
-        #share-results-button:hover {
-            background-color: #098323; /* Change this to your desired hover color */
-        }
+        #share-results-button:hover { background-color: #098323; }
 
-        /* Add these styles to your existing CSS */
-        .view-progress-button {
+        .view-progress-button, .close-results-button {
             flex: 1;
             padding: 10px;
-            background-color: #34495E; /* Change this to your desired color */
             color: white;
             border: none;
             border-radius: 4px;
@@ -160,27 +114,15 @@ input:not(:checked) + .slider {
             transition: background-color 0.3s;
         }
 
-        .close-results-button {
-            flex: 1;
-            padding: 10px;
-            background-color: #d9534f; /* Change this to your desired color */
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        
-        
-
+        .view-progress-button { background-color: #34495E; }
+        .close-results-button { background-color: #d9534f; }
 
         body.dark-mode {
             --beginner-color: #27ae60;
             --intermediate-color: #2980b9;
             --advanced-color: #8e44ad;
             --all-levels-color: #2c3e50;
-            --reset-button-color: #d00002; /* Keep the same red color in dark mode */
+            --reset-button-color: #d00002;
             --reset-button-text-color: #ffffff;
         }
 
@@ -198,23 +140,11 @@ input:not(:checked) + .slider {
             padding: 20px;
         }
 
-        h1, h2 {
-            text-align: center;
-            color: #2c3e50;
-        }
+        h1, h2 { text-align: center; color: #2c3e50; }
 
-        body.dark-mode h1,
-        body.dark-mode h2,
-        body.dark-mode h3,
-        body.dark-mode h4,
-        body.dark-mode h5,
-        body.dark-mode h6 {
-            color: #ffffff;
-        }
-
-        body.dark-mode .modal-content h2 {
-            color: #ffffff;
-        }
+        body.dark-mode h1, body.dark-mode h2, body.dark-mode h3,
+        body.dark-mode h4, body.dark-mode h5, body.dark-mode h6,
+        body.dark-mode .modal-content h2 { color: #ffffff; }
 
         #typing-area {
             background-color: #f1f1f1;
@@ -230,35 +160,20 @@ input:not(:checked) + .slider {
         }
 
         @media (max-width: 600px) {
-            #typing-area {
-                font-size: 18px;
-            }
+            #typing-area { font-size: 18px; }
         }
 
-    
-
-        
-
-        #input.border-beginner { border-color: var(--beginner-color); }
-        #input.border-intermediate { border-color: var(--intermediate-color); }
-        #input.border-advanced { border-color: var(--advanced-color); }
-
-        body.dark-mode #input {
-            border-color: #555555; /* Default dark mode border color */
-        }
+        body.dark-mode #input { border-color: #555555; }
 
         body.dark-mode #input.border-beginner { border-color: var(--beginner-color); }
         body.dark-mode #input.border-intermediate { border-color: var(--intermediate-color); }
         body.dark-mode #input.border-advanced { border-color: var(--advanced-color); }
-
-
 
         .input-container {
             width: 100%;
             max-width: 800px;
             margin: 0 auto;
             margin-bottom: 1px;
-            
         }
 
         .stats-group, .button-group, #stats, #difficulty-filter {
@@ -270,18 +185,11 @@ input:not(:checked) + .slider {
             height: auto;
         }
 
-        
-
-        
-       
-
-
-      
-            .current-word.incorrect {
-                background-color: #ffcccc;
-                color: #ff0000;
-                text-shadow: none;
-            }
+        .current-word.incorrect {
+            background-color: #ffcccc;
+            color: #ff0000;
+            text-shadow: none;
+        }
 
         .current-word {
             background-color: var(--highlight-color, #34495e);
@@ -299,10 +207,10 @@ input:not(:checked) + .slider {
             margin: 5px;
         }
 
-            .stats-item strong, .stat h3 {
-                margin-bottom: 5px;
-                font-size: 20px;
-            }
+        .stats-item strong, .stat h3 {
+            margin-bottom: 5px;
+            font-size: 20px;
+        }
 
         button {
             padding: 10px 20px;
@@ -314,24 +222,9 @@ input:not(:checked) + .slider {
             transition: all 0.3s ease;
         }
 
-       
-
-            .current-word.incorrect {
-                background-color: #ffcccc;
-                color: #ff0000;
-            }
-
-        #beginner-btn {
-            background-color: #2ecc71;
-        }
-
-        #intermediate-btn {
-            background-color: #3498db;
-        }
-
-        #advanced-btn {
-            background-color: #9b59b6;
-        }
+        #beginner-btn { background-color: #2ecc71; }
+        #intermediate-btn { background-color: #3498db; }
+        #advanced-btn { background-color: #9b59b6; }
 
         #custom-text-btn, #view-progress-button, #reset-progress {
             width: 48%;
@@ -352,15 +245,12 @@ input:not(:checked) + .slider {
             display: block;
         }
 
-
-            #start-button:disabled {
-                cursor: not-allowed;
-                opacity: 0.7;
-            }
-
-        #view-progress-button {
-            background-color: #34495e;
+        #start-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
         }
+
+        #view-progress-button { background-color: #34495e; }
 
         .modal-buttons {
             display: flex;
@@ -369,24 +259,12 @@ input:not(:checked) + .slider {
             margin-top: 20px;
         }
 
-        #font-size-selector {
-            margin-bottom: 10px;
-        }
+        #font-size-selector { margin-bottom: 10px; }
 
-        
+        .up { color: green; }
+        .down { color: red; }
 
-
-        .up {
-            color: green;
-        }
-
-        .down {
-            color: red;
-        }
-
-        #progress-chart {
-            margin-top: 20px;
-        }
+        #progress-chart { margin-top: 20px; }
 
         #disclaimer {
             margin-top: 20px;
@@ -394,8 +272,6 @@ input:not(:checked) + .slider {
             color: #7f8c8d;
             text-align: center;
         }
-
-        
 
         @media (max-width: 600px) {
             .modal-content {
@@ -412,37 +288,33 @@ input:not(:checked) + .slider {
             flex-direction: row;
         }
 
-            .modal-buttons button {
-                flex: 1; /* Make buttons take equal space */
-                padding: 10px 20px; /* Adjust padding for desired button size */
-                font-size: 14px; /* Adjust font size */
-                height: 50px; /* Ensure both buttons have the same height */
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                transition: background-color 0.3s;
-            }
+        .modal-buttons button {
+            flex: 1;
+            padding: 10px 20px;
+            font-size: 14px;
+            height: 50px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
 
-            .modal-buttons .close-button {
-                background-color: #34495e;
-                color: white;
-            }
+        .modal-buttons .close-button {
+            background-color: #34495e;
+            color: white;
+        }
 
-            .modal-buttons #reset-progress {
-                background-color: #d00002;
-                color: white;
-            }
+        .modal-buttons #reset-progress {
+            background-color: #d00002;
+            color: white;
+        }
 
-            .modal-buttons button:hover {
-                opacity: 0.9;
-            }
+        .modal-buttons button:hover { opacity: 0.9; }
 
-            body.dark-mode {
-                --reset-button-color: #d00002;
-                --reset-button-text-color: #ffffff;
-            }
-
-
+        body.dark-mode {
+            --reset-button-color: #d00002;
+            --reset-button-text-color: #ffffff;
+        }
 
         #difficulty-filter {
             display: flex;
@@ -451,67 +323,53 @@ input:not(:checked) + .slider {
             margin-bottom: 20px;
         }
 
-            #difficulty-filter button {
-                flex: 1;
-                padding: 10px;
-                font-size: 16px;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-                transition: background-color 0.3s, transform 0.1s;
-                color: white;
-            }
-
-                #difficulty-filter button:hover {
-                    opacity: 0.9;
-                    transform: scale(1.05);
-                }
-
-        #beginner-filter-btn {
-            background-color: #2ecc71;
+        #difficulty-filter button {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            color: white;
         }
 
-        #intermediate-filter-btn {
-            background-color: #3498db;
+        #difficulty-filter button:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
         }
 
-        #advanced-filter-btn {
-            background-color: #9b59b6;
-        }
-
-        
+        #beginner-filter-btn { background-color: #2ecc71; }
+        #intermediate-filter-btn { background-color: #3498db; }
+        #advanced-filter-btn { background-color: #9b59b6; }
 
         #difficulty-filter button.selected {
             box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
             font-weight: bold;
         }
 
-        
-
         #start-button {
             position: relative;
         }
 
-            #start-button:hover::after {
-                content: attr(title);
-                position: absolute;
-                bottom: 100%;
-                left: 50%;
-                transform: translateX(-50%);
-                padding: 5px;
-                background-color: #333;
-                color: white;
-                border-radius: 4px;
-                white-space: nowrap;
-                font-size: 14px;
-                pointer-events: none;
-                opacity: 0;
-                transition: opacity 0.3s;
-            }
+        #start-button:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 5px;
+            background-color: #333;
+            color: white;
+            border-radius: 4px;
+            white-space: nowrap;
+            font-size: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
 
-            #start-button:hover:not(:disabled)::after {
-                opacity: 1;
-            }
+        #start-button:hover:not(:disabled)::after { opacity: 1; }
 
         .button-group {
             display: flex;
@@ -520,36 +378,19 @@ input:not(:checked) + .slider {
             margin-bottom: 20px;
         }
 
-            .button-group button {
-                flex-grow: 1;
-                margin: 0 5px;
-                padding: 10px 20px;
-                font-size: 16px;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-                transition: all 0.3s ease;
-            }
-
-                .button-group button:first-child {
-                    margin-left: 0;
-                }
-
-                .button-group button:last-child {
-                    margin-right: 0;
-                }
-
-        #beginner-btn {
-            background-color: #2ecc71;
+        .button-group button {
+            flex-grow: 1;
+            margin: 0 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        #intermediate-btn {
-            background-color: #3498db;
-        }
-
-        #advanced-btn {
-            background-color: #9b59b6;
-        }
+        .button-group button:first-child { margin-left: 0; }
+        .button-group button:last-child { margin-right: 0; }
 
         .button-group button:hover {
             opacity: 0.9;
@@ -570,16 +411,16 @@ input:not(:checked) + .slider {
             text-align: center;
         }
 
-            .stat h3 {
-                margin-top: 0;
-                font-size: 14px;
-            }
+        .stat h3 {
+            margin-top: 0;
+            font-size: 14px;
+        }
 
-            .stat p {
-                margin-bottom: 0;
-                font-size: 18px;
-                font-weight: bold;
-            }
+        .stat p {
+            margin-bottom: 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
 
         body.dark-mode {
             background-color: #1a1a1a;
@@ -597,8 +438,6 @@ input:not(:checked) + .slider {
             border-color: #555;
         }
 
-        
-
         .dark-mode .stats-item, .dark-mode .stat {
             background-color: #2c2c2c;
             color: #f0f0f0;
@@ -614,11 +453,8 @@ input:not(:checked) + .slider {
             color: #ffffff;
         }
 
-            .dark-mode button:hover {
-                background-color: #555555;
-            }
+        .dark-mode button:hover { background-color: #555555; }
 
-        
         .dark-mode input, .dark-mode select {
             background-color: #333333;
             color: #ffffff;
@@ -630,43 +466,35 @@ input:not(:checked) + .slider {
             color: #ffffff;
         }
 
-        .dark-mode #view-progress-button {
-            background-color: #34495e;
-        }
-
-        /* Update these rules in your existing CSS */
+        .dark-mode #view-progress-button { background-color: #34495e; }
 
         .dark-mode #beginner-btn, .dark-mode #beginner-filter-btn {
-            background-color: #27ae60; /* Slightly darker shade of green */
+            background-color: #27ae60;
             color: #2ecc71;
         }
 
         .dark-mode #intermediate-btn, .dark-mode #intermediate-filter-btn {
-            background-color: #2980b9; /* Slightly darker shade of blue */
+            background-color: #2980b9;
             color: #2980b9;
         }
 
         .dark-mode #advanced-btn, .dark-mode #advanced-filter-btn {
-            background-color: #8e44ad; /* Slightly darker shade of purple */
+            background-color: #8e44ad;
             color: #8e44ad;
         }
 
         .dark-mode #all-levels-btn {
-            background-color: #2c3e50; /* Darker shade of blue-grey */
+            background-color: #2c3e50;
             color: #2c3e50;
         }
 
-        /* Ensure other buttons in dark mode have a consistent style */
         .dark-mode button:not(#beginner-btn):not(#intermediate-btn):not(#advanced-btn):not(#all-levels-btn):not(#beginner-filter-btn):not(#intermediate-filter-btn):not(#advanced-filter-btn):not(#dark-mode-toggle) {
             background-color: #333;
             color: #ffffff;
         }
 
-        .dark-mode button:hover {
-            opacity: 0.9;
-        }
+        .dark-mode button:hover { opacity: 0.9; }
 
-        /* Specific styles for start and view progress buttons */
         .dark-mode #start-button {
             background-color: var(--highlight-color, #444444);
             color: #ffffff;
@@ -676,7 +504,6 @@ input:not(:checked) + .slider {
             background-color: #34495e;
             color: #ffffff;
         }
-
 
         body.dark-mode {
             --bg-color: #1a1a1a;
@@ -741,10 +568,18 @@ input:not(:checked) + .slider {
             color: #ffffff;
         }
 
-        body.dark-mode #resetModal .modal-buttons button:first-child {
-            background-color: var(--reset-button-color);
-            color: var(--reset-button-text-color);
+
+
+        body.dark-mode #resetModal .modal-buttons button:first-of-type {
+            background-color: #d00002 !important; /* Bright red */
+            color: white !important;
         }
+
+        body.dark-mode #resetModal .modal-buttons button:first-of-type:hover {
+            background-color: #ff0000 !important; /* Lighter red on hover */
+        }
+
+
 
         .border-beginner {
             border: 2px solid var(--beginner-color);
@@ -1249,11 +1084,7 @@ body.dark-mode .modal-buttons button:hover {
     background-color: #555555;
 }
 
-/* Ensure buttons in modals also update */
-body.dark-mode #resetModal .modal-buttons button#reset-progress {
-    background-color: var(--reset-button-color);
-    color: var(--reset-button-text-color);
-}
+
 
 /* Ensure dark mode styles are applied to all necessary elements */
 body.dark-mode .view-progress-button {
@@ -2234,9 +2065,6 @@ input:checked + .slider-small {
 /* Apply grayscale to the entire page except modals */
 body.black-white-mode {
     filter: grayscale(100%);
-    min-height: 100vh; /* Ensure the body takes up at least the full viewport height */
-    display: flex;
-    flex-direction: column;
 }
 
 .modal {
@@ -2249,24 +2077,12 @@ body.black-white-mode #progressModal .modal-content {
     overflow: auto;
 }
 
+
+
 body.black-white-mode #progressModal .modal-content {
     margin: auto;
     max-height: 90vh; /* This allows some space at top and bottom */
     overflow-y: auto;
-}
-
-/* Ensure main content area maintains its size */
-body.black-white-mode main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-/* Prevent content shrinkage due to grayscale */
-body.black-white-mode #typing-area,
-body.black-white-mode #test-instructions,
-body.black-white-mode #keyboard-layout-container {
-    flex-shrink: 0;
 }
 
 
@@ -2619,7 +2435,7 @@ body.dark-mode #difficulty-filter .slider-option {
 
 .carousel-page {
     height: 100%;
-    overflow-y: hidden;
+    overflow-y: auto;
 }
 
 #page-2 {
@@ -7861,7 +7677,13 @@ function savePreviousStats(timeRange, difficulty, stats) {
         }
     }
 
-    
+    function addProblematicWordsToCustomText() {
+    const problematicWords = getTopProblematicWords(10, true);
+    const customTextInput = document.getElementById('custom-text-input');
+    const currentText = customTextInput.value;
+    const updatedText = currentText + ' ' + problematicWords.join(' ');
+    customTextInput.value = updatedText.trim();
+}
 
     function updateButtonColors() {
         const isDarkMode = document.body.classList.contains('dark-mode');
@@ -8840,15 +8662,7 @@ function updateVisualizerOpacity(opacity) {
         }
     }
 
-    if (window.location.protocol === "http:" || window.location.protocol === "https:") {
-        var script = document.createElement('script');
-        script.src = "https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015";
-        script.defer = true;
-        script.integrity = "sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==";
-        script.setAttribute('data-cf-beacon', '{"rayId":"89d03d9c7ca151f1","version":"2024.4.1","token":"5070e21320304a1ba2b0a42ce9682840"}');
-        script.crossOrigin = "anonymous";
-        document.head.appendChild(script);
-    }
+
 
     if (window.location.protocol === "file:") {
         navigator.sendBeacon = function() {
@@ -8861,294 +8675,371 @@ function updateVisualizerOpacity(opacity) {
   
     window.onload = function () {
         console.log('Window loaded');
+        initializeEventListeners();
+        initializeVisualizer();
+        initializeKeyboard();
+        loadSavedSettings();
+        setupSupportModal();
+        setupCustomTextButton();
+        setupOpacitySlider();
+        setupProblematicWordsButton();
+        initializeOtherSettings();
+    };
+
+    function initializeEventListeners() {
         const input = document.getElementById('input');
-    input.addEventListener('input', updateCursorPosition);
-    input.addEventListener('click', updateCursorPosition);
-    document.addEventListener('DOMContentLoaded', updateTypingAreaText);
-    document.getElementById('hide-ui-toggle').checked = localStorage.getItem('hideUI') === 'true';
-    window.addEventListener('resize', updateTestInstructionsPosition);
-    window.addEventListener('load', updateTooltips);
-    document.getElementById('black-white-toggle').addEventListener('change', toggleBlackWhiteMode);
-    waveVisualizerUnlocked = localStorage.getItem('waveVisualizerUnlocked') === 'true';
-    document.getElementById('waveVisualizer').style.display = waveVisualizerUnlocked ? 'block' : 'none';
-    document.querySelector('.visualizer-opacity-slider').style.display = waveVisualizerUnlocked ? 'flex' : 'none';
-    window.addEventListener('load', checkScreenSize);
-    window.addEventListener('resize', checkScreenSize);
+        input.addEventListener('input', updateCursorPosition);
+        input.addEventListener('click', updateCursorPosition);
+        document.addEventListener('DOMContentLoaded', updateTypingAreaText);
+        window.addEventListener('resize', updateTestInstructionsPosition);
+        document.getElementById('black-white-toggle').addEventListener('change', toggleBlackWhiteMode);
+        document.addEventListener('keydown', handleKeyboardControls);
+        document.getElementById('opacitySlider').addEventListener('input', updateVisualizerOpacity);
+    }
 
-    visualizer = new WaveVisualizer();
-    visualizer.animate();
-    initializeKeyboard();
-    updateTooltips();
+    function initializeVisualizer() {
+        visualizer = new WaveVisualizer();
+        visualizer.animate();
+        waveVisualizerUnlocked = localStorage.getItem('waveVisualizerUnlocked') === 'true';
+        document.getElementById('waveVisualizer').style.display = waveVisualizerUnlocked ? 'block' : 'none';
+        document.querySelector('.visualizer-opacity-slider').style.display = waveVisualizerUnlocked ? 'flex' : 'none';
+    }
 
-    const savedHideUI = localStorage.getItem('hideUI') === 'true';
-    document.getElementById('hide-ui-toggle').checked = savedHideUI;
-    document.body.classList.toggle('hide-ui', savedHideUI);
-    
-    // Call this function when the page loads
-    loadWordErrorTracker();
-    
-            document.getElementById('support-icon').addEventListener('click', function() {
-        document.getElementById('supportModal').style.display = 'block';
+    function loadSavedSettings() {
+        const savedHideUI = localStorage.getItem('hideUI') === 'true';
+        document.getElementById('hide-ui-toggle').checked = savedHideUI;
+        document.body.classList.toggle('hide-ui', savedHideUI);
+
+        loadWordErrorTracker();
+        loadSavedFontSize();
+        initializeLastKnownValues();
+        initialLoad();
+        addButtonEventListeners();
+        updateButtonColors();
+        initializePunctuationPreference();
+
+        const savedBlackWhitePreference = localStorage.getItem('blackWhiteMode');
+        if (savedBlackWhitePreference !== null) {
+            const isBlackWhite = savedBlackWhitePreference === 'true';
+            document.getElementById('black-white-toggle').checked = isBlackWhite;
+            document.body.classList.toggle('black-white-mode', isBlackWhite);
+        }
+    }
+
+    function setupSupportModal() {
+        document.getElementById('support-icon').addEventListener('click', () => {
+            document.getElementById('supportModal').style.display = 'block';
         });
 
-        document.querySelector('#supportModal .support-close-button').addEventListener('click', function() {
-        document.getElementById('supportModal').style.display = 'none';
-        });
-
-        window.addEventListener('click', function(event) {
-        if (event.target == document.getElementById('supportModal')) {
+        document.querySelector('#supportModal .support-close-button').addEventListener('click', () => {
             document.getElementById('supportModal').style.display = 'none';
-        }
         });
 
-        document.addEventListener('DOMContentLoaded', () => {
-            changeKeyboardLayout(); // Set the initial layout
-            heatmapEnabled = localStorage.getItem('heatmapEnabled') === 'true';
-    document.getElementById('keyboard-heatmap-toggle').checked = heatmapEnabled;
-    toggleHeatmap();
+        window.addEventListener('click', (event) => {
+            if (event.target == document.getElementById('supportModal')) {
+                document.getElementById('supportModal').style.display = 'none';
+            }
         });
-
-        // Add glow effect to difficulty selector
-    const difficultySlider = document.getElementById('difficultySlider');
-    difficultySlider.classList.add('difficulty-glow');
-
-    
-
-    document.addEventListener('DOMContentLoaded', () => {
-    const savedBlackWhitePreference = localStorage.getItem('blackWhiteMode');
-    if (savedBlackWhitePreference !== null) {
-        const isBlackWhite = savedBlackWhitePreference === 'true';
-        document.getElementById('black-white-toggle').checked = isBlackWhite;
-        document.body.classList.toggle('black-white-mode', isBlackWhite);
     }
-});
 
-document.getElementById('generate-random-words').addEventListener('click', function() {
-    const randomWords = generateRandomWords();
-    document.getElementById('custom-text-input').value = randomWords;
-});
+    function setupTextSizeSelector() {
+    const textSizeContainer = document.querySelector('.text-size-selector-container');
+    const textSizeSlider = document.getElementById('textSizeSlider');
+    const sliderHandle = textSizeSlider.querySelector('.text-size-slider-handle');
+    const options = textSizeSlider.querySelectorAll('.text-size-slider-option');
+    const selectedSizeSpan = document.querySelector('.selected-size');
+    let isOpen = false;
 
-document.addEventListener('DOMContentLoaded', function() {
-    const tooltipTrigger = document.querySelector('.tooltip-trigger');
-    let tooltipVisible = false;
- 
-    tooltipTrigger.addEventListener('click', function(e) {
-        e.preventDefault();
-        tooltipVisible = !tooltipVisible;
-        if (tooltipVisible) {
-            this.style.setProperty('--tooltip-visibility', 'visible');
-            this.style.setProperty('--tooltip-opacity', '1');
+    textSizeContainer.addEventListener('click', function(e) {
+        if (!isOpen) {
+            openTextSizeSelector();
+        } else if (e.target.classList.contains('text-size-slider-option')) {
+            const size = e.target.dataset.size;
+            const index = Array.from(options).indexOf(e.target);
+            updateTextSize(size, index);
+            closeTextSizeSelector();
+        }
+    });
+
+    function openTextSizeSelector() {
+        textSizeContainer.classList.add('open');
+        isOpen = true;
+    }
+
+    function closeTextSizeSelector() {
+        textSizeContainer.classList.remove('open');
+        isOpen = false;
+    }
+
+    function updateTextSize(size, index) {
+        const typingArea = document.getElementById('typing-area');
+        typingArea.style.fontSize = `${size}px`;
+        sliderHandle.style.transform = `translateY(${index * 40}px)`;
+        options.forEach((option, i) => {
+            option.classList.toggle('selected', i === index);
+        });
+        selectedSizeSpan.textContent = `(${getSizeText(size)})`;
+        localStorage.setItem('preferredFontSize', size);
+    }
+
+    function getSizeText(size) {
+        switch(size) {
+            case '18': return 'SM';
+            case '24': return 'MD';
+            case '30': return 'LG';
+            case '36': return 'XL';
+            default: return 'MD';
+        }
+    }
+    function setupDarkModeToggle() {
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        if (darkModeToggle) {
+            // Load saved preference
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            darkModeToggle.checked = isDarkMode;
+
+            // Add event listener
+            darkModeToggle.addEventListener('change', function() {
+                const isDarkMode = this.checked;
+                document.body.classList.toggle('dark-mode', isDarkMode);
+                localStorage.setItem('darkMode', isDarkMode);
+                updateButtonColors(); // Assuming this function exists to update button colors
+            });
         } else {
-            this.style.setProperty('--tooltip-visibility', 'hidden');
-            this.style.setProperty('--tooltip-opacity', '0');
+            console.warn('Dark mode toggle element not found');
         }
-    });
-});
+    }
+    function updateTooltips() {
+        const tooltips = document.querySelectorAll('[data-tooltip]');
+        tooltips.forEach(element => {
+            const tooltipText = element.getAttribute('data-tooltip');
+            let tooltip = element.querySelector('.tooltip');
+            
+            if (!tooltip) {
+                tooltip = document.createElement('div');
+                tooltip.className = 'tooltip';
+                element.appendChild(tooltip);
+            }
+            
+            tooltip.textContent = tooltipText;
+            
+            element.addEventListener('mouseenter', () => {
+                tooltip.style.visibility = 'visible';
+                tooltip.style.opacity = '1';
+            });
+            
+            element.addEventListener('mouseleave', () => {
+                tooltip.style.visibility = 'hidden';
+                tooltip.style.opacity = '0';
+            });
+        });
+    }
+    function filterByTimeRange() {
+        const timeRange = document.getElementById('time-range-selector').value;
+        const now = new Date();
+        let startDate;
 
-document.addEventListener('DOMContentLoaded', function() {
-    const opacitySlider = document.getElementById('opacitySlider');
-    const opacityValue = document.getElementById('opacityValue');
-    const visualizer = document.getElementById('waveVisualizer');
-    const opacitySliderContainer = document.querySelector('.visualizer-opacity-slider');
- 
-    // Check if the visualizer is unlocked
-    const visualizerUnlocked = localStorage.getItem('waveVisualizerUnlocked') === 'true';
- 
-    if (visualizerUnlocked) {
-        // Load the saved opacity or use default
-        const savedOpacity = localStorage.getItem('visualizerOpacity') || 50;
-        opacitySlider.value = savedOpacity;
-        updateVisualizerOpacity(savedOpacity);
- 
-        visualizer.style.display = 'block';
-        opacitySliderContainer.style.display = 'flex';
+        switch (timeRange) {
+            case 'all':
+                // No filtering needed
+                displayAllResults();
+                return;
+            case 'day':
+                startDate = new Date(now.setDate(now.getDate() - 1));
+                break;
+            case 'week':
+                startDate = new Date(now.setDate(now.getDate() - 7));
+                break;
+            case 'month':
+                startDate = new Date(now.setMonth(now.getMonth() - 1));
+                break;
+            case 'year':
+                startDate = new Date(now.setFullYear(now.getFullYear() - 1));
+                break;
+            default:
+                console.warn('Invalid time range selected');
+                return;
+        }
+
+        const filteredResults = results.filter(result => {
+            const resultDate = new Date(result.date);
+            return resultDate >= startDate;
+        });
+
+        displayFilteredResults(filteredResults);
+    }
+
+    function displayAllResults() {
+        // Implement logic to display all results
+        console.log('Displaying all results');
+        // You may want to call your existing function that displays results here
+    }
+
+    function displayFilteredResults(filteredResults) {
+        // Implement logic to display filtered results
+        console.log('Displaying filtered results:', filteredResults);
+        // You may want to update your UI with the filtered results here
+    }
+
+    // Call updateTooltips when the DOM is loaded
+    document.addEventListener('DOMContentLoaded', updateTooltips);
+
+    // Call updateTooltips when the dark mode is toggled
+    document.getElementById('dark-mode-toggle').addEventListener('change', updateTooltips);
+
+    // Load saved font size
+    const savedSize = localStorage.getItem('preferredFontSize') || '24';
+    const savedIndex = Array.from(options).findIndex(option => option.dataset.size === savedSize);
+    if (savedIndex !== -1) {
+        updateTextSize(savedSize, savedIndex);
     } else {
-        visualizer.style.display = 'none';
-        opacitySliderContainer.style.display = 'none';
-    }
- 
-    opacitySlider.addEventListener('input', function() {
-        const opacity = this.value;
-        updateVisualizerOpacity(opacity);
-       
-        // Save the current opacity to localStorage
-        localStorage.setItem('visualizerOpacity', opacity);
-    });
- 
-    function updateVisualizerOpacity(opacity) {
-        const normalizedOpacity = opacity / 100;
-        visualizer.style.opacity = normalizedOpacity;
-        opacityValue.textContent = `${opacity}%`;
-    }
-});
-
-document.getElementById('custom-add-problematic-words').addEventListener('click', function() {
-    const customTextInput = document.getElementById('custom-text-input');
-    const problematicWords = getTopProblematicWords(10, true); // Get words only
-    console.log('Problematic words to add:', problematicWords);
-    console.log('Type of problematicWords:', typeof problematicWords);
-    console.log('Is problematicWords an array?', Array.isArray(problematicWords));
-
-    if (!Array.isArray(problematicWords)) {
-        console.error('problematicWords is not an array. Actual value:', problematicWords);
-        return; // Exit the function if problematicWords is not an array
+        updateTextSize('24', 1); // Default to medium if not found
     }
 
-    const problematicWordsText = problematicWords
-        .filter(word => {
-            console.log('Processing word:', word, 'Type:', typeof word);
-            return typeof word === 'string';
-        })
-        .join(' ');
+    // Set initial selected state
+    const initialIndex = savedIndex !== -1 ? savedIndex : 1;
+    options[initialIndex].classList.add('selected');
+    selectedSizeSpan.textContent = `(${getSizeText(options[initialIndex].dataset.size)})`;
+}
 
-    console.log('Text to add:', problematicWordsText);
+    function setupCustomTextButton() {
+        document.getElementById('generate-random-words').addEventListener('click', () => {
+            const randomWords = generateRandomWords();
+            document.getElementById('custom-text-input').value = randomWords;
+        });
+    }
 
-    customTextInput.value += (customTextInput.value ? ' ' : '') + problematicWordsText;
-    console.log('Input value after setting:', customTextInput.value);
+    function setupTimeRangeSelector() {
+    const timeRangeSelector = document.getElementById('time-range-selector');
+    if (timeRangeSelector) {
+        timeRangeSelector.addEventListener('change', function() {
+            filterByTimeRange();
+        });
+    } else {
+        console.warn('Time range selector element not found');
+    }
+}
 
-    console.log('Final input value:', customTextInput.value);
-});
-    
-document.addEventListener('DOMContentLoaded', () => {
-    visualizer = new WaveVisualizer();
-    visualizer.animate();
-});
-
-    document.addEventListener('DOMContentLoaded', function() {
+function setupDifficultySlider() {
     const sliderContainer = document.getElementById('difficultySlider');
     const sliderHandle = sliderContainer.querySelector('.slider-handle');
-    document.addEventListener('DOMContentLoaded', function() {
-    // Add the keydown event listener here
-    const sliderContainer = document.getElementById('difficultySlider');
-    sliderContainer.addEventListener('click', handleSliderClick);
-
-    
+    const sliderOptions = sliderContainer.querySelectorAll('.slider-option');
 
     sliderContainer.addEventListener('click', (e) => {
-        if (testActive || isProgressModalOpen) return;
+        if (testActive) return; // Ignore clicks when test is active
 
         const rect = sliderContainer.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const percentage = (x / rect.width) * 100;
-        let position;
+        let position, difficulty, index;
 
         if (percentage < 33.33) {
             position = 0;
+            difficulty = 'beginner';
+            index = 0;
         } else if (percentage < 66.66) {
             position = 33.33;
+            difficulty = 'intermediate';
+            index = 1;
         } else {
             position = 66.66;
+            difficulty = 'advanced';
+            index = 2;
         }
 
-        const difficulty = updateDifficulty(position);
-        if (difficulty) {
-            setDifficulty(difficulty);
-            updateDifficultySelector(difficulty);
-            difficultySelected = true;
-            
-            const customTextBtn = document.getElementById('custom-text-btn');
-            if (customTextBtn) {
-                customTextBtn.classList.remove('selected');
+        sliderHandle.style.left = `${position}%`;
+        sliderHandle.className = `slider-handle ${difficulty}`;
+
+        // Update text color for all options
+        sliderOptions.forEach((option, i) => {
+            if (i === index) {
+                option.style.color = 'white';
+                option.classList.add('selected');
+            } else {
+                option.style.color = '';
+                option.classList.remove('selected');
             }
-        }
+        });
+
+        setDifficulty(difficulty);
+        currentDifficulty = difficulty;
     });
-
-    
-});
-});
-
-   
-
-
-        
-       
-    // Check if the elements exist before adding event listeners
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
-    
-    // Handle heatmap visibility
-    const keyboardContainer = document.getElementById('keyboard-container');
-    const heatmapToggle = document.getElementById('keyboard-heatmap-toggle');
-    if (localStorage.getItem('heatmapEnabled') === 'true') {
-        if (keyboardContainer) {
-            keyboardContainer.style.display = 'block';
-        }
-        if (heatmapToggle) {
-            heatmapToggle.checked = true;
-        }
-    } else {
-        if (keyboardContainer) {
-            keyboardContainer.style.display = 'none';
-        }
-        if (heatmapToggle) {
-            heatmapToggle.checked = false;
-        }
-    }
-
-        if (darkModeToggle) {
-            darkModeToggle.addEventListener('change', toggleDarkMode);
-        }
-
-        if (heatmapToggle) {
-            heatmapToggle.addEventListener('change', toggleHeatmap);
-        }
-
-    // Initialize other elements and settings
-    loadSavedFontSize();
-    initializeLastKnownValues();
-    initialLoad();
-    addButtonEventListeners();
-    updateButtonColors();
-    initializeKeyboard();
-    updateHeatmap();
-    initializePunctuationPreference();
-    
-
-    // Handle dark mode
-    if (localStorage.getItem('darkMode') === 'true') {
-        document.body.classList.add('dark-mode');
-        if (darkModeToggle) darkModeToggle.checked = true;
-        updateButtonColors();
-    }
-
-    // Handle heatmap visibility
-    const heatmapContainer = document.getElementById('keyboard-heatmap');
-    if (localStorage.getItem('heatmapEnabled') === 'true') {
-        if (heatmapContainer) {
-            heatmapContainer.style.display = 'block';
-            if (heatmapToggle) heatmapToggle.checked = true;
-        }
-    } else {
-        if (heatmapContainer) {
-            heatmapContainer.style.display = 'none';
-        }
-    }
-
-    filterByTimeRange();
-
-    // Add event listeners to filter buttons
-    const timeRangeSelector = document.getElementById('time-range-selector');
-
-
-    if (timeRangeSelector) timeRangeSelector.addEventListener('change', filterByTimeRange);
-};
-
-function toggleHeatmap() {
-    const heatmapToggle = document.getElementById('keyboard-heatmap-toggle');
-    const keyboardContainer = document.getElementById('keyboard-container');
-
-    heatmapEnabled = heatmapToggle.checked;
-    
-    if (heatmapEnabled) {
-        keyboardContainer.style.display = 'block';
-        updateKeyboardColors();
-    } else {
-        keyboardContainer.style.display = 'none';
-    }
-
-    localStorage.setItem('heatmapEnabled', heatmapEnabled.toString());
-
-    updateTestInstructionsPosition();
 }
+
+    function setupOpacitySlider() {
+        const opacitySlider = document.getElementById('opacitySlider');
+        const opacityValue = document.getElementById('opacityValue');
+        const visualizer = document.getElementById('waveVisualizer');
+        const opacitySliderContainer = document.querySelector('.visualizer-opacity-slider');
+
+        const visualizerUnlocked = localStorage.getItem('waveVisualizerUnlocked') === 'true';
+
+        if (visualizerUnlocked) {
+            const savedOpacity = localStorage.getItem('visualizerOpacity') || 50;
+            opacitySlider.value = savedOpacity;
+            updateVisualizerOpacity(savedOpacity);
+
+            visualizer.style.display = 'block';
+            opacitySliderContainer.style.display = 'flex';
+        } else {
+            visualizer.style.display = 'none';
+            opacitySliderContainer.style.display = 'none';
+        }
+
+        opacitySlider.addEventListener('input', function() {
+            const opacity = this.value;
+            updateVisualizerOpacity(opacity);
+            localStorage.setItem('visualizerOpacity', opacity);
+        });
+    }
+
+
+    function setupProblematicWordsButton() {
+        document.getElementById('custom-add-problematic-words').addEventListener('click', addProblematicWordsToCustomText);
+    }
+
+    function initializeOtherSettings() {
+        updateTooltips();
+        filterByTimeRange();
+        setupTimeRangeSelector();
+        setupDifficultySlider();
+        setupTextSizeSelector();
+        setupDarkModeToggle();
+    }
+
+    function setupDarkModeToggle() {
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    if (darkModeToggle) {
+        // Load saved preference
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+        document.body.classList.toggle('dark-mode', isDarkMode);
+        darkModeToggle.checked = isDarkMode;
+
+        // Add event listener
+        darkModeToggle.addEventListener('change', function() {
+            const isDarkMode = this.checked;
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            localStorage.setItem('darkMode', isDarkMode);
+            updateButtonColors(); // Assuming this function exists to update button colors
+        });
+    } else {
+        console.warn('Dark mode toggle element not found');
+    }
+}
+
+    function toggleHeatmap() {
+        const heatmapToggle = document.getElementById('keyboard-heatmap-toggle');
+        const keyboardContainer = document.getElementById('keyboard-container');
+
+        heatmapEnabled = heatmapToggle.checked;
+        
+        keyboardContainer.style.display = heatmapEnabled ? 'block' : 'none';
+        if (heatmapEnabled) updateKeyboardColors();
+
+        localStorage.setItem('heatmapEnabled', heatmapEnabled.toString());
+        updateTestInstructionsPosition();
+    }
 
 function initializePunctuationPreference() {
     const checkbox = document.getElementById('add-punctuation-checkbox');
@@ -9606,10 +9497,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-        
-
-
-
 
 
 
@@ -9638,7 +9525,6 @@ window.addEventListener('resize', adjustModalSize);
         &copy; 2024 All rights reserved.
     </footer>
     
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"8b75918a0fbf7b30","serverTiming":{"name":{"cfL4":true}},"version":"2024.8.0","token":"5070e21320304a1ba2b0a42ce9682840"}' crossorigin="anonymous"></script>
 </body>
 
 

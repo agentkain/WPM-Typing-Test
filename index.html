@@ -742,10 +742,18 @@ input:not(:checked) + .slider {
             color: #ffffff;
         }
 
-        body.dark-mode #resetModal .modal-buttons button:first-child {
-            background-color: var(--reset-button-color);
-            color: var(--reset-button-text-color);
+
+
+        body.dark-mode #resetModal .modal-buttons button:first-of-type {
+            background-color: #d00002 !important; /* Bright red */
+            color: white !important;
         }
+
+        body.dark-mode #resetModal .modal-buttons button:first-of-type:hover {
+            background-color: #ff0000 !important; /* Lighter red on hover */
+        }
+
+
 
         .border-beginner {
             border: 2px solid var(--beginner-color);
@@ -1250,11 +1258,7 @@ body.dark-mode .modal-buttons button:hover {
     background-color: #555555;
 }
 
-/* Ensure buttons in modals also update */
-body.dark-mode #resetModal .modal-buttons button#reset-progress {
-    background-color: var(--reset-button-color);
-    color: var(--reset-button-text-color);
-}
+
 
 /* Ensure dark mode styles are applied to all necessary elements */
 body.dark-mode .view-progress-button {

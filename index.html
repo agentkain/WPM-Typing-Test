@@ -25,119 +25,76 @@
         */
 
         :root {
-    --beginner-color: #2ecc71;
-    --intermediate-color: #3498db;
-    --advanced-color: #9b59b6;
-    --all-levels-color: #34495e;
-    --beginner-text-color: #ffffff;
-    --intermediate-text-color: #ffffff;
-    --advanced-text-color: #ffffff;
-    --all-levels-text-color: #ffffff;
-    --reset-button-color: #d00002;
-    --reset-button-text-color: #ffffff;
-    --beginner-cursor-color: #2ecc71;
-    --intermediate-cursor-color: #3498db;
-    --advanced-cursor-color: #9b59b6;
+            --beginner-color: #2ecc71;
+            --intermediate-color: #3498db;
+            --advanced-color: #9b59b6;
+            --all-levels-color: #34495e;
+            --beginner-text-color: #ffffff;
+            --intermediate-text-color: #ffffff;
+            --advanced-text-color: #ffffff;
+            --all-levels-text-color: #ffffff;
+            --reset-button-color: #d00002;
+            --reset-button-text-color: #ffffff;
+            --beginner-cursor-color: #2ecc71;
+            --intermediate-cursor-color: #3498db;
+            --advanced-cursor-color: #9b59b6;
+        }
 
+        #input:focus {
+            outline: none;
+            border-color: var(--highlight-color);
+        }
 
-}
+        #input.border-beginner:focus { border-color: var(--beginner-color); }
+        #input.border-intermediate:focus { border-color: var(--intermediate-color); }
+        #input.border-advanced:focus { border-color: var(--advanced-color); }
 
+        #input.border-beginner { border-color: var(--beginner-color); }
+        #input.border-intermediate { border-color: var(--intermediate-color); }
+        #input.border-advanced { border-color: var(--advanced-color); }
 
+        .switch input { opacity: 0; width: 0; height: 0; }
 
-#input:focus {
-    outline: none;
-    border-color: var(--highlight-color);
-}
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
 
-#input.border-beginner:focus {
-    border-color: var(--beginner-color);
-}
+        input:checked + .slider { background-color: #9a9a9a; }
+        input:checked + .slider:before { transform: translateX(26px); }
 
-#input.border-intermediate:focus {
-    border-color: var(--intermediate-color);
-}
+        input:checked + .slider:before {
+            transform: translateX(26px);
+            content: "🌙";
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: grayscale(100%);
+        }
 
-#input.border-advanced:focus {
-    border-color: var(--advanced-color);
-}
+        input:not(:checked) + .slider:before {
+            content: "☼";
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7e7e7e;
+        }
 
-/* Ensure the default styles are also covered */
-#input.border-beginner {
-    border-color: var(--beginner-color);
-}
-
-#input.border-intermediate {
-    border-color: var(--intermediate-color);
-}
-
-#input.border-advanced {
-    border-color: var(--advanced-color);
-}
-
-
-
-
-
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
-    border-radius: 34px;
-}
-
-
-
-input:checked + .slider {
-    background-color: #9a9a9a;
-}
-
-input:checked + .slider:before {
-    transform: translateX(26px);
-}
-
-
-input:checked + .slider:before {
-  transform: translateX(26px);
-  content: "🌙"; /* Add the crescent moon emoji */
-  font-size: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  filter: grayscale(100%); /* Apply grayscale effect */
-}
-
-/* Optionally, add a different color for the unchecked state */
-input:not(:checked) + .slider:before {
-  content: "☼"; /* Add the sun emoji */
-  font-size: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #7e7e7e,
-  
-  
-}
-
-input:not(:checked) + .slider {
-  background-color: #eeeeee; /* Change this to your desired color */
-}
+        input:not(:checked) + .slider { background-color: #eeeeee; }
 
         #share-results-button {
             padding: 10px 20px;
-            background-color: #0cb431; /* Change this to your desired background color */
-            color: white; /* Change this to your desired text color */
+            background-color: #0cb431;
+            color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -145,15 +102,11 @@ input:not(:checked) + .slider {
             transition: background-color 0.3s ease;
         }
 
-        #share-results-button:hover {
-            background-color: #098323; /* Change this to your desired hover color */
-        }
+        #share-results-button:hover { background-color: #098323; }
 
-        /* Add these styles to your existing CSS */
-        .view-progress-button {
+        .view-progress-button, .close-results-button {
             flex: 1;
             padding: 10px;
-            background-color: #34495E; /* Change this to your desired color */
             color: white;
             border: none;
             border-radius: 4px;
@@ -161,27 +114,15 @@ input:not(:checked) + .slider {
             transition: background-color 0.3s;
         }
 
-        .close-results-button {
-            flex: 1;
-            padding: 10px;
-            background-color: #d9534f; /* Change this to your desired color */
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        
-        
-
+        .view-progress-button { background-color: #34495E; }
+        .close-results-button { background-color: #d9534f; }
 
         body.dark-mode {
             --beginner-color: #27ae60;
             --intermediate-color: #2980b9;
             --advanced-color: #8e44ad;
             --all-levels-color: #2c3e50;
-            --reset-button-color: #d00002; /* Keep the same red color in dark mode */
+            --reset-button-color: #d00002;
             --reset-button-text-color: #ffffff;
         }
 
@@ -199,23 +140,11 @@ input:not(:checked) + .slider {
             padding: 20px;
         }
 
-        h1, h2 {
-            text-align: center;
-            color: #2c3e50;
-        }
+        h1, h2 { text-align: center; color: #2c3e50; }
 
-        body.dark-mode h1,
-        body.dark-mode h2,
-        body.dark-mode h3,
-        body.dark-mode h4,
-        body.dark-mode h5,
-        body.dark-mode h6 {
-            color: #ffffff;
-        }
-
-        body.dark-mode .modal-content h2 {
-            color: #ffffff;
-        }
+        body.dark-mode h1, body.dark-mode h2, body.dark-mode h3,
+        body.dark-mode h4, body.dark-mode h5, body.dark-mode h6,
+        body.dark-mode .modal-content h2 { color: #ffffff; }
 
         #typing-area {
             background-color: #f1f1f1;
@@ -231,35 +160,20 @@ input:not(:checked) + .slider {
         }
 
         @media (max-width: 600px) {
-            #typing-area {
-                font-size: 18px;
-            }
+            #typing-area { font-size: 18px; }
         }
 
-    
-
-        
-
-        #input.border-beginner { border-color: var(--beginner-color); }
-        #input.border-intermediate { border-color: var(--intermediate-color); }
-        #input.border-advanced { border-color: var(--advanced-color); }
-
-        body.dark-mode #input {
-            border-color: #555555; /* Default dark mode border color */
-        }
+        body.dark-mode #input { border-color: #555555; }
 
         body.dark-mode #input.border-beginner { border-color: var(--beginner-color); }
         body.dark-mode #input.border-intermediate { border-color: var(--intermediate-color); }
         body.dark-mode #input.border-advanced { border-color: var(--advanced-color); }
-
-
 
         .input-container {
             width: 100%;
             max-width: 800px;
             margin: 0 auto;
             margin-bottom: 1px;
-            
         }
 
         .stats-group, .button-group, #stats, #difficulty-filter {
@@ -271,18 +185,11 @@ input:not(:checked) + .slider {
             height: auto;
         }
 
-        
-
-        
-       
-
-
-      
-            .current-word.incorrect {
-                background-color: #ffcccc;
-                color: #ff0000;
-                text-shadow: none;
-            }
+        .current-word.incorrect {
+            background-color: #ffcccc;
+            color: #ff0000;
+            text-shadow: none;
+        }
 
         .current-word {
             background-color: var(--highlight-color, #34495e);
@@ -300,10 +207,10 @@ input:not(:checked) + .slider {
             margin: 5px;
         }
 
-            .stats-item strong, .stat h3 {
-                margin-bottom: 5px;
-                font-size: 20px;
-            }
+        .stats-item strong, .stat h3 {
+            margin-bottom: 5px;
+            font-size: 20px;
+        }
 
         button {
             padding: 10px 20px;
@@ -315,24 +222,9 @@ input:not(:checked) + .slider {
             transition: all 0.3s ease;
         }
 
-       
-
-            .current-word.incorrect {
-                background-color: #ffcccc;
-                color: #ff0000;
-            }
-
-        #beginner-btn {
-            background-color: #2ecc71;
-        }
-
-        #intermediate-btn {
-            background-color: #3498db;
-        }
-
-        #advanced-btn {
-            background-color: #9b59b6;
-        }
+        #beginner-btn { background-color: #2ecc71; }
+        #intermediate-btn { background-color: #3498db; }
+        #advanced-btn { background-color: #9b59b6; }
 
         #custom-text-btn, #view-progress-button, #reset-progress {
             width: 48%;
@@ -353,15 +245,12 @@ input:not(:checked) + .slider {
             display: block;
         }
 
-
-            #start-button:disabled {
-                cursor: not-allowed;
-                opacity: 0.7;
-            }
-
-        #view-progress-button {
-            background-color: #34495e;
+        #start-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
         }
+
+        #view-progress-button { background-color: #34495e; }
 
         .modal-buttons {
             display: flex;
@@ -370,24 +259,12 @@ input:not(:checked) + .slider {
             margin-top: 20px;
         }
 
-        #font-size-selector {
-            margin-bottom: 10px;
-        }
+        #font-size-selector { margin-bottom: 10px; }
 
-        
+        .up { color: green; }
+        .down { color: red; }
 
-
-        .up {
-            color: green;
-        }
-
-        .down {
-            color: red;
-        }
-
-        #progress-chart {
-            margin-top: 20px;
-        }
+        #progress-chart { margin-top: 20px; }
 
         #disclaimer {
             margin-top: 20px;
@@ -395,8 +272,6 @@ input:not(:checked) + .slider {
             color: #7f8c8d;
             text-align: center;
         }
-
-        
 
         @media (max-width: 600px) {
             .modal-content {
@@ -413,37 +288,33 @@ input:not(:checked) + .slider {
             flex-direction: row;
         }
 
-            .modal-buttons button {
-                flex: 1; /* Make buttons take equal space */
-                padding: 10px 20px; /* Adjust padding for desired button size */
-                font-size: 14px; /* Adjust font size */
-                height: 50px; /* Ensure both buttons have the same height */
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                transition: background-color 0.3s;
-            }
+        .modal-buttons button {
+            flex: 1;
+            padding: 10px 20px;
+            font-size: 14px;
+            height: 50px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
 
-            .modal-buttons .close-button {
-                background-color: #34495e;
-                color: white;
-            }
+        .modal-buttons .close-button {
+            background-color: #34495e;
+            color: white;
+        }
 
-            .modal-buttons #reset-progress {
-                background-color: #d00002;
-                color: white;
-            }
+        .modal-buttons #reset-progress {
+            background-color: #d00002;
+            color: white;
+        }
 
-            .modal-buttons button:hover {
-                opacity: 0.9;
-            }
+        .modal-buttons button:hover { opacity: 0.9; }
 
-            body.dark-mode {
-                --reset-button-color: #d00002;
-                --reset-button-text-color: #ffffff;
-            }
-
-
+        body.dark-mode {
+            --reset-button-color: #d00002;
+            --reset-button-text-color: #ffffff;
+        }
 
         #difficulty-filter {
             display: flex;
@@ -452,67 +323,53 @@ input:not(:checked) + .slider {
             margin-bottom: 20px;
         }
 
-            #difficulty-filter button {
-                flex: 1;
-                padding: 10px;
-                font-size: 16px;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-                transition: background-color 0.3s, transform 0.1s;
-                color: white;
-            }
-
-                #difficulty-filter button:hover {
-                    opacity: 0.9;
-                    transform: scale(1.05);
-                }
-
-        #beginner-filter-btn {
-            background-color: #2ecc71;
+        #difficulty-filter button {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            color: white;
         }
 
-        #intermediate-filter-btn {
-            background-color: #3498db;
+        #difficulty-filter button:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
         }
 
-        #advanced-filter-btn {
-            background-color: #9b59b6;
-        }
-
-        
+        #beginner-filter-btn { background-color: #2ecc71; }
+        #intermediate-filter-btn { background-color: #3498db; }
+        #advanced-filter-btn { background-color: #9b59b6; }
 
         #difficulty-filter button.selected {
             box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
             font-weight: bold;
         }
 
-        
-
         #start-button {
             position: relative;
         }
 
-            #start-button:hover::after {
-                content: attr(title);
-                position: absolute;
-                bottom: 100%;
-                left: 50%;
-                transform: translateX(-50%);
-                padding: 5px;
-                background-color: #333;
-                color: white;
-                border-radius: 4px;
-                white-space: nowrap;
-                font-size: 14px;
-                pointer-events: none;
-                opacity: 0;
-                transition: opacity 0.3s;
-            }
+        #start-button:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 5px;
+            background-color: #333;
+            color: white;
+            border-radius: 4px;
+            white-space: nowrap;
+            font-size: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
 
-            #start-button:hover:not(:disabled)::after {
-                opacity: 1;
-            }
+        #start-button:hover:not(:disabled)::after { opacity: 1; }
 
         .button-group {
             display: flex;
@@ -521,36 +378,19 @@ input:not(:checked) + .slider {
             margin-bottom: 20px;
         }
 
-            .button-group button {
-                flex-grow: 1;
-                margin: 0 5px;
-                padding: 10px 20px;
-                font-size: 16px;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-                transition: all 0.3s ease;
-            }
-
-                .button-group button:first-child {
-                    margin-left: 0;
-                }
-
-                .button-group button:last-child {
-                    margin-right: 0;
-                }
-
-        #beginner-btn {
-            background-color: #2ecc71;
+        .button-group button {
+            flex-grow: 1;
+            margin: 0 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        #intermediate-btn {
-            background-color: #3498db;
-        }
-
-        #advanced-btn {
-            background-color: #9b59b6;
-        }
+        .button-group button:first-child { margin-left: 0; }
+        .button-group button:last-child { margin-right: 0; }
 
         .button-group button:hover {
             opacity: 0.9;
@@ -571,16 +411,16 @@ input:not(:checked) + .slider {
             text-align: center;
         }
 
-            .stat h3 {
-                margin-top: 0;
-                font-size: 14px;
-            }
+        .stat h3 {
+            margin-top: 0;
+            font-size: 14px;
+        }
 
-            .stat p {
-                margin-bottom: 0;
-                font-size: 18px;
-                font-weight: bold;
-            }
+        .stat p {
+            margin-bottom: 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
 
         body.dark-mode {
             background-color: #1a1a1a;
@@ -598,8 +438,6 @@ input:not(:checked) + .slider {
             border-color: #555;
         }
 
-        
-
         .dark-mode .stats-item, .dark-mode .stat {
             background-color: #2c2c2c;
             color: #f0f0f0;
@@ -615,11 +453,8 @@ input:not(:checked) + .slider {
             color: #ffffff;
         }
 
-            .dark-mode button:hover {
-                background-color: #555555;
-            }
+        .dark-mode button:hover { background-color: #555555; }
 
-        
         .dark-mode input, .dark-mode select {
             background-color: #333333;
             color: #ffffff;
@@ -631,43 +466,35 @@ input:not(:checked) + .slider {
             color: #ffffff;
         }
 
-        .dark-mode #view-progress-button {
-            background-color: #34495e;
-        }
-
-        /* Update these rules in your existing CSS */
+        .dark-mode #view-progress-button { background-color: #34495e; }
 
         .dark-mode #beginner-btn, .dark-mode #beginner-filter-btn {
-            background-color: #27ae60; /* Slightly darker shade of green */
+            background-color: #27ae60;
             color: #2ecc71;
         }
 
         .dark-mode #intermediate-btn, .dark-mode #intermediate-filter-btn {
-            background-color: #2980b9; /* Slightly darker shade of blue */
+            background-color: #2980b9;
             color: #2980b9;
         }
 
         .dark-mode #advanced-btn, .dark-mode #advanced-filter-btn {
-            background-color: #8e44ad; /* Slightly darker shade of purple */
+            background-color: #8e44ad;
             color: #8e44ad;
         }
 
         .dark-mode #all-levels-btn {
-            background-color: #2c3e50; /* Darker shade of blue-grey */
+            background-color: #2c3e50;
             color: #2c3e50;
         }
 
-        /* Ensure other buttons in dark mode have a consistent style */
         .dark-mode button:not(#beginner-btn):not(#intermediate-btn):not(#advanced-btn):not(#all-levels-btn):not(#beginner-filter-btn):not(#intermediate-filter-btn):not(#advanced-filter-btn):not(#dark-mode-toggle) {
             background-color: #333;
             color: #ffffff;
         }
 
-        .dark-mode button:hover {
-            opacity: 0.9;
-        }
+        .dark-mode button:hover { opacity: 0.9; }
 
-        /* Specific styles for start and view progress buttons */
         .dark-mode #start-button {
             background-color: var(--highlight-color, #444444);
             color: #ffffff;
@@ -677,7 +504,6 @@ input:not(:checked) + .slider {
             background-color: #34495e;
             color: #ffffff;
         }
-
 
         body.dark-mode {
             --bg-color: #1a1a1a;

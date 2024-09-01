@@ -3585,13 +3585,17 @@ body.dark-mode .tooltip-text {
             if (highAccuracyTests >= 20) return true;
             
             const longTests = results.filter(r => r.duration >= 300);
-            return longTests.some(test => {
+            const longTestCondition = longTests.some(test => {
                 const halfwayPoint = test.duration / 2;
                 return test.accuracyAtHalfway >= 90;
             });
+
+            return longTestCondition || window.waveVisualizerUnlocked === true;
         },
         onUnlock: () => {
-            unlockWaveVisualizer();
+            if (!window.waveVisualizerUnlocked) {
+                unlockWaveVisualizer();
+            }
         }
     }
 ];

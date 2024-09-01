@@ -3574,7 +3574,6 @@ body.dark-mode .tooltip-text {
             condition: (results) => results.some(r => r.wpm >= 100),
             progressCalculation: (results) => results.some(r => r.wpm >= 100) ? 100 : 0
         },
-
         {
         id: 'flow_state',
         name: 'Flow State',
@@ -3758,6 +3757,23 @@ function updateAchievements(latestResult) {
     }
 
     achievementSystem.updateProgressModal();
+
+    let achievements = JSON.parse(localStorage.getItem('achievements')) || {};
+    
+    // Check for wave visualizer unlock
+    if (latestResult.waveVisualizerUnlocked) {
+        if (!achievements.waveVisualizerUnlocked) {
+            achievements.waveVisualizerUnlocked = {
+                achieved: true,
+                date: new Date().toISOString(),
+                name: "Flow State",
+                description: "Unlocked the Wave Visualizer by maintaining high accuracy in a long test or completing 20 high-accuracy tests."
+            };
+        }
+    }
+
+    localStorage.setItem('achievements', JSON.stringify(achievements));
+    updateAchievementsDisplay();
 }
 
 
@@ -5297,7 +5313,7 @@ function initializeVisualizer() {
     visualizer = new WaveVisualizer(difficultyColor);
 }
 
-function unlockWaveVisualizer(showAchievement = false) {
+function unlockWaveVisualizer() {
     if (waveVisualizerUnlocked) return;
 
     console.log('Unlocking wave visualizer');
@@ -5320,9 +5336,8 @@ function unlockWaveVisualizer(showAchievement = false) {
         visualizer.animate();
     }
 
-    if (showAchievement) {
-        showActiveAchievement("Flow State Achieved!");
-    }
+    // Update achievements
+    updateAchievements({ waveVisualizerUnlocked: true });
 }
 
 function showActiveAchievement(title) {

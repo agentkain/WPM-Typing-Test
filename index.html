@@ -5316,10 +5316,8 @@ function initializeVisualizer() {
 function unlockWaveVisualizer() {
     if (waveVisualizerUnlocked) return;
 
-    console.log('Unlocking wave visualizer');
     waveVisualizerUnlocked = true;
     localStorage.setItem('waveVisualizerUnlocked', 'true');
-    
     const visualizerElement = document.getElementById('waveVisualizer');
     const opacitySlider = document.querySelector('.visualizer-opacity-slider');
     
@@ -5336,8 +5334,11 @@ function unlockWaveVisualizer() {
         visualizer.animate();
     }
 
-    // Update achievements
-    updateAchievements({ waveVisualizerUnlocked: true });
+    // Trigger achievement check
+    const latestResult = {
+        waveVisualizerUnlocked: true
+    };
+    updateAchievements(latestResult);
 }
 
 function showActiveAchievement(title) {

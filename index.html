@@ -4886,7 +4886,15 @@ function resetTest() {
     timer = selectedTime;
     updateTimer();
     updateProgressBar(timer);
-    // ... (reset other variables as needed)
+    testActive = false;
+    correctChars = 0;
+    incorrectChars = 0;
+    totalChars = 0;
+    currentWordIndex = 0;
+    currentCharIndex = 0;
+    typedWords = [];
+    updateWPM();
+    updateAccuracy();
 
     customTextBtn.classList.remove('selected');
 
@@ -4899,16 +4907,13 @@ function resetTest() {
         buttonGroup.classList.remove('hidden');
     }, 300); // Delay to allow instructions to hide first   
 
-    // Re-enable UI elements
-    enableUIElements();
+    // Clear any existing intervals
     if (updateInterval) {
         clearInterval(updateInterval);
         updateInterval = null;
     }
 
-    currentDifficulty = null;
-
-    // Set the difficulty back to what it was
+    // Reset and update difficulty
     currentDifficulty = previousDifficulty;
     updateUIForDifficulty(currentDifficulty);
 
@@ -4916,10 +4921,30 @@ function resetTest() {
     enableUIElements();
     resetKeyboardBorder();
 
+    // Reset the input field
+    const inputField = document.getElementById('input');
+    inputField.value = '';
+    inputField.disabled = false;
+
+    // Reset the text display
+    const textDisplay = document.getElementById('text-display');
+    textDisplay.innerHTML = '';
+
     // Reset the visualizer waves
     if (visualizer) {
         visualizer.resetWaves();
     }
+
+    // Check for wave visualizer achievement
+    if (waveVisualizerUnlocked && !localStorage.getItem('waveVisualizerAchievementShown')) {
+        showActiveAchievement("Flow State Achieved!");
+        localStorage.setItem('waveVisualizerAchievementShown', 'true');
+    }
+
+    // Reset start button
+    const startButton = document.getElementById('start-button');
+    startButton.textContent = 'Start';
+    startButton.classList.remove('reset');
 }
 
     function startTest(isCustomTest = false) {
@@ -5077,6 +5102,8 @@ function resetTest() {
     // Clear any existing AFK timer
     clearInterval(afkInterval);
     clearTimeout(afkTimer);
+
+    localStorage.removeItem('waveVisualizerAchievementShown');
 }
 
 function updateUIForTest(isCustomTest) {
@@ -5242,20 +5269,15 @@ function lerp(start, end, amount) {
 }
 
 function checkWaveVisualizerUnlock() {
-    console.log('Checking wave visualizer unlock...');
     if (waveVisualizerUnlocked) {
-        console.log('Wave visualizer already unlocked');
         return;
     }
 
     const results = JSON.parse(localStorage.getItem('typingResults')) || [];
     const highAccuracyTests = results.filter(r => r.accuracy >= 90).length;
 
-    console.log(`High accuracy tests: ${highAccuracyTests}`);
-
     if (highAccuracyTests >= 20) {
-        console.log('Unlocking due to high accuracy tests');
-        unlockWaveVisualizer();
+        unlockWaveVisualizer(true);
         return;
     }
 
@@ -5264,11 +5286,8 @@ function checkWaveVisualizerUnlock() {
         const elapsedTime = selectedTime - timer;
         const accuracy = calculateAccuracy();
 
-        console.log(`Test active: ${testActive}, Selected time: ${selectedTime}, Elapsed time: ${elapsedTime}, Halfway point: ${halfwayPoint}, Accuracy: ${accuracy}`);
-
         if (elapsedTime >= halfwayPoint && accuracy >= 90) {
-            console.log('Unlocking due to mid-test high accuracy');
-            unlockWaveVisualizer();
+            unlockWaveVisualizer(true);
         }
     }
 }
@@ -5278,34 +5297,31 @@ function initializeVisualizer() {
     visualizer = new WaveVisualizer(difficultyColor);
 }
 
-function unlockWaveVisualizer() {
+function unlockWaveVisualizer(showAchievement = false) {
+    if (waveVisualizerUnlocked) return;
+
     console.log('Unlocking wave visualizer');
     waveVisualizerUnlocked = true;
     localStorage.setItem('waveVisualizerUnlocked', 'true');
-    showActiveAchievement("Flow State Achieved!");
+    
     const visualizerElement = document.getElementById('waveVisualizer');
     const opacitySlider = document.querySelector('.visualizer-opacity-slider');
     
     if (visualizerElement) {
         visualizerElement.style.display = 'block';
-        console.log('Visualizer element displayed');
-    } else {
-        console.error('Visualizer element not found');
     }
     
     if (opacitySlider) {
         opacitySlider.style.display = 'flex';
-        console.log('Opacity slider displayed');
-    } else {
-        console.error('Opacity slider not found');
     }
 
     if (!visualizer) {
-        console.log('Creating new WaveVisualizer');
         visualizer = new WaveVisualizer();
         visualizer.animate();
-    } else {
-        console.log('WaveVisualizer already exists');
+    }
+
+    if (showAchievement) {
+        showActiveAchievement("Flow State Achieved!");
     }
 }
 
@@ -8270,6 +8286,11 @@ function verifyReset() {
     if (visualizer) {
         visualizer.resetWaves();
         visualizer.updateColor('#34495e');  // Reset to default color
+    }
+
+    if (waveVisualizerUnlocked && !localStorage.getItem('waveVisualizerAchievementShown')) {
+        showActiveAchievement("Flow State Achieved!");
+        localStorage.setItem('waveVisualizerAchievementShown', 'true');
     }
 
     if (message) {

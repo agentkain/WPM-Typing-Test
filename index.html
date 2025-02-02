@@ -1589,10 +1589,6 @@ body.dark-mode .slider-container {
     background-color: #444;
 }
 
-body.dark-mode .slider-option {
-    color: #f0f0f0;
-}
-
 body.dark-mode #custom-text-btn {
     background-color: #2c3e50;
 }
@@ -3574,7 +3570,19 @@ body.dark-mode .tooltip-text {
             condition: (results) => results.some(r => r.wpm >= 100),
             progressCalculation: (results) => results.some(r => r.wpm >= 100) ? 100 : 0
         },
-
+        {
+            id: 'daily_speed',
+            name: 'Daily Speedster',
+            description: 'Achieve 100 WPM for 3 days in a row',
+            isDailyStreak: true,       // <-- New flag for daily streak display
+            streakTarget: 3,           // <-- Number of consecutive days needed
+            condition: (results) => results.some(r => r.wpm >= 100),
+            progressCalculation: (results) => {
+                 // Optionally, you can calculate progress based on current streak
+                 const streak = parseInt(localStorage.getItem('achievementStreak_daily_speed')) || 0;
+                 return Math.min(100, (streak / 3) * 100);
+            }
+        },
         {
         id: 'flow_state',
         name: 'Flow State',
@@ -3592,6 +3600,8 @@ body.dark-mode .tooltip-text {
         },
         onUnlock: () => {
             unlockWaveVisualizer();
+            // Refresh the achievements list so that the now unlocked, hidden achievement is displayed immediately
+            achievementSystem.updateProgressModal();
         }
     }
 ];
@@ -3611,21 +3621,74 @@ body.dark-mode .tooltip-text {
     }
 
     checkAchievements(latestResult, allResults) {
-    const newAchievements = [];
-    achievements.forEach(achievement => {
-        if (!this.unlockedAchievements.includes(achievement.id) && achievement.condition(allResults)) {
-            this.unlockedAchievements.push(achievement.id);
-            newAchievements.push(achievement);
-            if (achievement.onUnlock) {
-                achievement.onUnlock();
-            }
-        }
-    });
-    this.saveUnlockedAchievements();
-    return newAchievements;
-}
+        const newAchievements = [];
+        achievements.forEach(achievement => {
+            // Skip if already unlocked
+            if (this.unlockedAchievements.includes(achievement.id)) return;
 
-getProgress(achievementId) {
+            let conditionMet = false;
+            try {
+                // Evaluate the achievement condition using all results
+                conditionMet = achievement.condition(allResults);
+            } catch (error) {
+                console.error(`Error evaluating achievement condition for ${achievement.id}:`, error);
+            }
+
+            // Handle daily streak achievements
+            if (achievement.isDailyStreak) {
+                const streakKey = `achievementStreak_${achievement.id}`;
+                const lastDateKey = `achievementStreakLastDate_${achievement.id}`;
+                const today = new Date().toDateString();
+                let currentStreak = parseInt(localStorage.getItem(streakKey)) || 0;
+                let lastDate = localStorage.getItem(lastDateKey);
+
+                if (conditionMet) {
+                    if (lastDate === today) {
+                        // Already recorded a successful attempt today; no change.
+                    } else if (lastDate) {
+                        const yesterday = new Date();
+                        yesterday.setDate(new Date().getDate() - 1);
+                        if (new Date(lastDate).toDateString() === yesterday.toDateString()) {
+                            currentStreak++;
+                        } else {
+                            currentStreak = 1; // Missed a day? Reset streak.
+                        }
+                    } else {
+                        currentStreak = 1;
+                    }
+                    localStorage.setItem(streakKey, currentStreak);
+                    localStorage.setItem(lastDateKey, today);
+                    if (currentStreak < achievement.streakTarget) {
+                        // If the streak target hasn't been reached, treat condition as not met.
+                        conditionMet = false;
+                    }
+                } else {
+                    // If today's result does NOT qualify, reset the streak (if not already recorded today).
+                    if (lastDate !== today) {
+                        localStorage.setItem(streakKey, 0);
+                    }
+                }
+            }
+
+            if (conditionMet) {
+                this.unlockedAchievements.push(achievement.id);
+                newAchievements.push(achievement);
+
+                if (achievement.onUnlock) {
+                    try {
+                        achievement.onUnlock();
+                    } catch (error) {
+                        console.error(`Error executing onUnlock for achievement ${achievement.id}:`, error);
+                    }
+                }
+            }
+        }); // End achievements.forEach callback
+
+        this.saveUnlockedAchievements();
+        return newAchievements;
+    }
+
+    getProgress(achievementId) {
         const achievement = achievements.find(a => a.id === achievementId);
         if (!achievement) return 0;
 
@@ -3637,6 +3700,7 @@ getProgress(achievementId) {
         const results = JSON.parse(localStorage.getItem('typingResults')) || [];
         let progress = 0;
 
+        try {
         if (typeof achievement.progressCalculation === 'function') {
             progress = Math.round(achievement.progressCalculation(results));
         } else if (achievement.hidden) {
@@ -3644,6 +3708,9 @@ getProgress(achievementId) {
         } else {
             console.warn(`Progress calculation not defined for achievement: ${achievementId}`);
             progress = 0;
+            }
+        } catch (error) {
+            console.error(`Error calculating progress for achievement ${achievement.id}:`, error);
         }
 
         // Special handling for specific achievements
@@ -3746,6 +3813,10 @@ getProgress(achievementId) {
 function updateAchievements(latestResult) {
     const allResults = JSON.parse(localStorage.getItem('typingResults')) || [];
     allResults.push(latestResult); // Add the latest result to all results
+
+    // Save the updated results back to localStorage so that subsequent checks are consistent
+    localStorage.setItem('typingResults', JSON.stringify(allResults));
+
     const newAchievements = achievementSystem.checkAchievements(latestResult, allResults);
     
     if (newAchievements.length > 0) {
@@ -3858,6 +3929,7 @@ function updateAchievements(latestResult) {
         let sessionProblematicWords = {};
         let visualizer;
         let waveVisualizerUnlocked = false;
+        let backgroundEffectUnlocked = false;
         
 
 
@@ -8901,7 +8973,7 @@ function updateVisualizerOpacity(opacity) {
     const initialIndex = savedIndex !== -1 ? savedIndex : 1;
     options[initialIndex].classList.add('selected');
     selectedSizeSpan.textContent = `(${getSizeText(options[initialIndex].dataset.size)})`;
-}
+    }
 
     function setupCustomTextButton() {
         document.getElementById('generate-random-words').addEventListener('click', () => {
@@ -9501,16 +9573,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 // Event listener for dark mode toggle
-document.getElementById('dark-mode-toggle').addEventListener('change', toggleDarkMode);
-window.addEventListener('load', initializeKeyboard);
-window.addEventListener('load', initializeTimeSelector);
-window.addEventListener('load', updatePlatformInstructions);
-document.addEventListener('DOMContentLoaded', updateTestInstructionsPosition);
-window.addEventListener('load', updatePlatformInstructions);
-document.querySelector('.nav-button.prev').addEventListener('click', showPreviousPage);
-document.querySelector('.nav-button.next').addEventListener('click', showNextPage);
-window.addEventListener('load', adjustModalSize);
-window.addEventListener('resize', adjustModalSize);
+        document.getElementById('dark-mode-toggle').addEventListener('change', toggleDarkMode);
+        window.addEventListener('load', initializeKeyboard);
+        window.addEventListener('load', initializeTimeSelector);
+        window.addEventListener('load', updatePlatformInstructions);
+        document.addEventListener('DOMContentLoaded', updateTestInstructionsPosition);
+        window.addEventListener('load', updatePlatformInstructions);
+        document.querySelector('.nav-button.prev').addEventListener('click', showPreviousPage);
+        document.querySelector('.nav-button.next').addEventListener('click', showNextPage);
+        window.addEventListener('load', adjustModalSize);
+        window.addEventListener('resize', adjustModalSize);
 
 
 
@@ -9522,7 +9594,7 @@ window.addEventListener('resize', adjustModalSize);
   </div>
 
     <footer style="text-align: center; margin-top: 20px; font-size: 14px; color: #888;">
-        &copy; 2024 All rights reserved.
+        &copy; 2025 All rights reserved.
     </footer>
     
 </body>

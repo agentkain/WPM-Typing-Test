@@ -6642,6 +6642,16 @@ startButton.addEventListener('click', handleStartReset);
     function drawProgressChart(results, timeRange, difficulty) {
     const ctx = document.getElementById('progress-chart').getContext('2d');
 
+    // Filter out invalid dates and sort by date first
+    const validResults = results
+        .filter(result => 
+            result.wpm !== undefined && 
+            !isNaN(result.wpm) && 
+            result.date && 
+            new Date(result.date).toString() !== 'Invalid Date'
+        )
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+
     // Helper function to capitalize first letter
     function capitalizeFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
@@ -6663,10 +6673,6 @@ startButton.addEventListener('click', handleStartReset);
         advanced: getComputedStyle(document.documentElement).getPropertyValue('--advanced-color').trim(),
         all: isDarkMode ? '#ffffff' : getComputedStyle(document.documentElement).getPropertyValue('--all-levels-color').trim()
     };
-
-    const validResults = results.filter(result => 
-        result.wpm !== undefined && !isNaN(result.wpm) && result.date
-    );
 
     // Check if there's any data
     if (validResults.length === 0) {
@@ -6716,9 +6722,13 @@ startButton.addEventListener('click', handleStartReset);
 
     let chartData;
     if (timeRange === 'today') {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
         chartData = validResults.filter(result => {
             const resultDate = new Date(result.date);
-            return resultDate.toDateString() === new Date().toDateString();
+            resultDate.setHours(0, 0, 0, 0);
+            return resultDate.getTime() === today.getTime();
         }).map(r => ({
             x: new Date(r.date),
             y: r.wpm,
@@ -6728,7 +6738,8 @@ startButton.addEventListener('click', handleStartReset);
             totalWords: r.totalWords,
             keystrokeAccuracy: r.keystrokeAccuracy,
             duration: r.duration
-        }));
+        }))
+        .sort((a, b) => a.x - b.x);
     } else if (timeRange === '6 months' || timeRange === '12 months') {
         const monthsToShow = timeRange === '6 months' ? 6 : 12;
         const now = new Date();
@@ -6780,14 +6791,16 @@ startButton.addEventListener('click', handleStartReset);
             }
         });
 
-        chartData = Object.entries(aggregated).map(([date, data]) => ({
-            x: new Date(date),
-            y: Math.round(data.totalWpm / data.sessions),
-            accuracy: Math.round((data.totalAccuracy / data.sessions) * 100) / 100,
-            sessions: data.sessions,
-            highestWpm: data.highestWpm,
-            highestDifficulty: data.highestDifficulty
-        }));
+        chartData = Object.entries(aggregated)
+            .map(([date, data]) => ({
+                x: new Date(date),
+                y: Math.round(data.totalWpm / data.sessions),
+                accuracy: Math.round((data.totalAccuracy / data.sessions) * 100) / 100,
+                sessions: data.sessions,
+                highestWpm: data.highestWpm,
+                highestDifficulty: data.highestDifficulty
+            }))
+            .sort((a, b) => a.x - b.x); // Add proper date sorting
     }
 
     const datasets = [
@@ -7411,7 +7424,10 @@ function filterByTimeRange() {
         const resultDate = new Date(result.date);
         if (timeRange !== 'all') {
             if (timeRange === 'today') {
-                return resultDate.toDateString() === now.toDateString();
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                resultDate.setHours(0, 0, 0, 0);
+                return resultDate.getTime() === today.getTime();
             } else {
                 const days = parseInt(timeRange);
                 return (now - resultDate) <= days * 24 * 60 * 60 * 1000;

@@ -7041,25 +7041,99 @@ function aggregateDataByMonth(data, timeRange) {
         .sort((a, b) => a.date - b.date);
 }
 
-function updateWordErrorTracker(word, isError) {
+function updateWordErrorTracker(word, isError, typingTime, keystrokes) {
     if (!wordErrorTracker[word]) {
-        wordErrorTracker[word] = { errors: 0, consecutiveErrors: 0 };
+        wordErrorTracker[word] = {
+            errors: 0,
+            attempts: 0,
+            totalTime: 0,
+            keystrokes: 0,
+            lastAttempts: [], // Store last 5 attempts
+            avgSpeed: 0
+        };
     }
 
+    const stats = wordErrorTracker[word];
+    stats.attempts++;
+    
+    // Update error count
     if (isError) {
-        wordErrorTracker[word].errors++;
-        wordErrorTracker[word].consecutiveErrors++;
-    } else {
-        wordErrorTracker[word].consecutiveErrors = 0;
+        stats.errors++;
     }
 
-    // Consider a word problematic if it has more than 2 consecutive errors
-    if (wordErrorTracker[word].consecutiveErrors > 2) {
-        wordErrorTracker[word].isProblematic = true;
+    // Update timing and keystroke data
+    stats.totalTime += typingTime;
+    stats.keystrokes += keystrokes;
+
+    // Keep track of last 5 attempts with timestamps
+    stats.lastAttempts.push({
+        isError,
+        time: typingTime,
+        keystrokes,
+        timestamp: Date.now()
+    });
+    
+    // Only keep last 5 attempts
+    if (stats.lastAttempts.length > 5) {
+        stats.lastAttempts.shift();
     }
 
-    // Store the tracker in localStorage
+    // Calculate average speed (characters per second)
+    stats.avgSpeed = stats.keystrokes / stats.totalTime;
+
     localStorage.setItem('wordErrorTracker', JSON.stringify(wordErrorTracker));
+}
+
+function getTopProblematicWords(count = 10, wordsOnly = false) {
+    const now = Date.now();
+    const TWO_WEEKS = 14 * 24 * 60 * 60 * 1000; // Two weeks in milliseconds
+
+    const wordScores = Object.entries(wordErrorTracker)
+        .map(([word, stats]) => {
+            // Filter to only include attempts from last 2 weeks
+            const recentAttempts = stats.lastAttempts.filter(
+                attempt => (now - attempt.timestamp) < TWO_WEEKS
+            );
+
+            if (recentAttempts.length === 0) return null;
+
+            // Calculate metrics
+            const errorRate = stats.errors / stats.attempts;
+            const avgTimePerChar = stats.totalTime / stats.keystrokes;
+            const recentErrorRate = recentAttempts.filter(a => a.isError).length / recentAttempts.length;
+            
+            // Calculate consistency (standard deviation of typing times)
+            const times = recentAttempts.map(a => a.time);
+            const avgTime = times.reduce((a, b) => a + b, 0) / times.length;
+            const variance = times.reduce((a, b) => a + Math.pow(b - avgTime, 2), 0) / times.length;
+            const consistency = Math.sqrt(variance);
+
+            // Calculate recency weight (more recent problems are weighted higher)
+            const mostRecentAttempt = Math.max(...recentAttempts.map(a => a.timestamp));
+            const recencyWeight = Math.exp(-(now - mostRecentAttempt) / TWO_WEEKS);
+
+            // Combined score weighing all factors
+            const score = (
+                (errorRate * 0.3) +
+                (avgTimePerChar * 0.2) +
+                (recentErrorRate * 0.3) +
+                (consistency * 0.1)
+            ) * recencyWeight;
+
+            return {
+                word,
+                score,
+                errorRate,
+                avgTimePerChar,
+                recentErrorRate,
+                consistency
+            };
+        })
+        .filter(item => item !== null)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, count);
+
+    return wordsOnly ? wordScores.map(item => item.word) : wordScores;
 }
 
 // Load word error tracker from localStorage on page load

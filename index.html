@@ -157,6 +157,10 @@
             word-wrap: break-word;
             word-break: break-word;
             transition: border-color 0.3s ease;
+            white-space: normal; /* Allow words to wrap to new lines */
+            overflow-y: auto; /* Allow vertical scrolling */
+            line-height: 1.8; /* Add more space between lines */
+            max-height: 300px; /* Limit height to ensure scrolling */
         }
 
         @media (max-width: 600px) {
@@ -2968,7 +2972,34 @@ body.dark-mode .tooltip-text {
         max-width: 80%;
     }
 
+/* Add these styles to your CSS section */
+.correct-word {
+    color: #888888;
+    opacity: 0.8;
+}
 
+.incorrect-word {
+    color: #d9534f;
+    text-decoration: line-through;
+    opacity: 0.8;
+}
+
+/* Make sure the current word style overrides the others */
+.current-word.correct-word,
+.current-word.incorrect-word {
+    color: white;
+    text-decoration: none;
+    opacity: 1;
+}
+
+/* Dark mode adjustments */
+body.dark-mode .correct-word {
+    color: #aaaaaa;
+}
+
+body.dark-mode .incorrect-word {
+    color: #ff6b6b;
+}
 </style>
 
     </style>
@@ -3429,9 +3460,16 @@ body.dark-mode .tooltip-text {
                 return false;
             },
             progressCalculation: (results) => {
-                const recentTests = results.slice(-10);
-                const consecutiveAccurateTests = recentTests.filter(r => r.accuracy >= 98).length;
-                return Math.min(100, (consecutiveAccurateTests / 10) * 100);
+                let consecutiveCount = 0;
+                for (let i = results.length - 1; i >= 0; i--) {
+                    if (results[i].accuracy >= 98) {
+                        consecutiveCount++;
+                        if (consecutiveCount === 10) break;
+                    } else {
+                        break;
+                    }
+                }
+                return Math.min(100, (consecutiveCount / 10) * 100);
             }
         },
         {
@@ -3445,10 +3483,30 @@ body.dark-mode .tooltip-text {
             id: 'no_errors_streak',
             name: 'No Errors Streak',
             description: 'Complete five tests in a row with zero mistakes',
-            condition: (results) => results.slice(-5).every(r => r.accuracy === 100),
+            condition: (results) => {
+                let consecutiveCount = 0;
+                for (let i = results.length - 1; i >= 0; i--) {
+                    if (results[i].accuracy === 100) {
+                        consecutiveCount++;
+                        if (consecutiveCount === 5) return true;
+                    } else {
+                        consecutiveCount = 0;
+                    }
+                }
+                return false;
+            },
             progressCalculation: (results) => {
-                const streak = results.slice().reverse().findIndex(r => r.accuracy !== 100);
-                return Math.min(100, (streak === -1 ? results.length : streak) / 5 * 100);
+                let currentStreak = 0;
+                let maxStreak = 0;
+                for (let i = results.length - 1; i >= 0; i--) {
+                    if (results[i].accuracy === 100) {
+                        currentStreak++;
+                        maxStreak = Math.max(maxStreak, currentStreak);
+                    } else {
+                        currentStreak = 0;
+                    }
+                }
+                return Math.min(100, (maxStreak / 5) * 100);
             }
         },
         {
@@ -3523,15 +3581,16 @@ body.dark-mode .tooltip-text {
                 return false;
             },
             progressCalculation: (results) => {
+                let currentConsecutive = 0;
                 let maxConsecutive = 0;
                 for (let i = 1; i < results.length; i++) {
                     const timeDiff = new Date(results[i].date) - new Date(results[i-1].date);
                     if (timeDiff <= 90000) {
-                        maxConsecutive++;
+                        currentConsecutive++;
+                        maxConsecutive = Math.max(maxConsecutive, currentConsecutive);
                     } else {
-                        maxConsecutive = 0;
+                        currentConsecutive = 0;
                     }
-                    if (maxConsecutive >= 2) return 100;
                 }
                 return Math.min(100, (maxConsecutive / 2) * 100);
             }
@@ -3576,11 +3635,16 @@ body.dark-mode .tooltip-text {
             description: 'Achieve 100 WPM for 3 days in a row',
             isDailyStreak: true,       // <-- New flag for daily streak display
             streakTarget: 3,           // <-- Number of consecutive days needed
-            condition: (results) => results.some(r => r.wpm >= 100),
+            condition: (results) => {
+                // Check if there's a result from today with 100+ WPM
+                const today = new Date().toDateString();
+                return results.some(r => 
+                    new Date(r.date).toDateString() === today && r.wpm >= 100
+                );
+            },
             progressCalculation: (results) => {
-                 // Optionally, you can calculate progress based on current streak
-                 const streak = parseInt(localStorage.getItem('achievementStreak_daily_speed')) || 0;
-                 return Math.min(100, (streak / 3) * 100);
+                const streak = parseInt(localStorage.getItem('achievementStreak_daily_speed')) || 0;
+                return Math.min(100, (streak / 3) * 100);
             }
         },
         {
@@ -3930,6 +3994,7 @@ function updateAchievements(latestResult) {
         let visualizer;
         let waveVisualizerUnlocked = false;
         let backgroundEffectUnlocked = false;
+        let incorrectWords = {}; // Add this line to track incorrect words
         
 
 
@@ -4050,21 +4115,81 @@ function updateAchievements(latestResult) {
             currentWordIndex = 0;
         }
     } else {
-        if (words.length === 0 || currentWordIndex >= words.length) {
+        if (words.length === 0 || currentWordIndex >= words.length - 5) {
+            // Refill words when we're close to the end of the entire word list
             refillWords();
         }
     }
 
-    // Display the next set of 10 words
-    const wordsToDisplay = words.slice(currentWordIndex, currentWordIndex + 10);
-    typingArea.innerHTML = wordsToDisplay.map((word, index) =>
-        `<span class="word ${index === 0 ? 'current-word' : ''}" ${index === 0 ? 'id="current-word"' : ''}>${word}</span>`
-    ).join(' ');
+    // Determine if we need to refresh the display
+    const needsRefresh = currentWordIndex === 0 || 
+                         !document.getElementById('current-word') ||
+                         currentWordIndex >= lastDisplayedEndIndex - 5;
+    
+    // Only regenerate the HTML if we need to refresh
+    if (needsRefresh) {
+        // Display more words (increased from 30 to 50 for better context)
+        const startIndex = Math.max(0, currentWordIndex - 3);
+        const wordsToDisplay = words.slice(startIndex, startIndex + 50);
+        
+        // Store the end index of the displayed words for future reference
+        lastDisplayedEndIndex = startIndex + wordsToDisplay.length;
+        
+        typingArea.innerHTML = wordsToDisplay.map((word, index) => {
+            const wordIndex = startIndex + index;
+            const isCurrentWord = index === (currentWordIndex - startIndex);
+            const wasIncorrect = incorrectWords[wordIndex] === true;
+            const isPastWord = wordIndex < currentWordIndex;
+            
+            let classes = 'word';
+            if (isCurrentWord) classes += ' current-word';
+            if (wasIncorrect) classes += ' incorrect-word';
+            if (isPastWord && !wasIncorrect) classes += ' correct-word';
+            
+            return `<span class="${classes}" 
+                        ${isCurrentWord ? 'id="current-word"' : ''}>${word}</span>`;
+        }).join(' ');
+    } else {
+        // Just update which word is marked as current
+        const wordElements = typingArea.querySelectorAll('.word');
+        const currentWordOffset = currentWordIndex - (lastDisplayedEndIndex - wordElements.length);
+        
+        // Remove current-word class from all words
+        wordElements.forEach(word => word.classList.remove('current-word'));
+        wordElements.forEach(word => word.removeAttribute('id'));
+        
+        // Add current-word class to the new current word
+        if (wordElements[currentWordOffset]) {
+            wordElements[currentWordOffset].classList.add('current-word');
+            wordElements[currentWordOffset].id = 'current-word';
+        }
+        
+        // Mark the previous word as correct or incorrect
+        if (currentWordOffset > 0 && wordElements[currentWordOffset - 1]) {
+            const prevWordElement = wordElements[currentWordOffset - 1];
+            if (incorrectWords[currentWordIndex - 1]) {
+                prevWordElement.classList.add('incorrect-word');
+            } else {
+                prevWordElement.classList.add('correct-word');
+            }
+        }
+    }
 
-    // Ensure the current word is visible
+    // Ensure proper scrolling behavior
     const currentWordElement = document.getElementById('current-word');
     if (currentWordElement) {
-        currentWordElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Check if the current word is visible in the viewport
+        const rect = currentWordElement.getBoundingClientRect();
+        const containerRect = typingArea.getBoundingClientRect();
+        
+        // If the current word is not fully visible, scroll it into view
+        if (rect.bottom > containerRect.bottom || rect.top < containerRect.top ||
+            rect.right > containerRect.right || rect.left < containerRect.left) {
+            currentWordElement.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center'
+            });
+        }
     }
 
     // Ensure the input is focused
@@ -5080,6 +5205,7 @@ function resetTest() {
     wordStartTime = Date.now();
     currentWordIndex = 0;
     sessionProblematicWords = {};
+    incorrectWords = {}; // Reset incorrect words tracking
 
     typingArea.textContent = ''; // Clear the instruction text
     displayWords();
@@ -5216,12 +5342,21 @@ function startTimerCountdown() {
     }
     const startTime = Date.now();
     timerStarted = true;
+    let midTestAccuracyRecorded = false;
+    
     timerInterval = setInterval(() => {
         const elapsedTime = (Date.now() - startTime) / 1000;
         timer = Math.max(0, selectedTime - elapsedTime);
         updateTimer();
         updateProgressBar(timer);
-        checkWaveVisualizerUnlock(); // Add this line
+        
+        // Record accuracy at halfway point for Flow State achievement
+        if (!midTestAccuracyRecorded && timer <= selectedTime / 2) {
+            midTestAccuracy = calculateAccuracy();
+            midTestAccuracyRecorded = true;
+        }
+        
+        checkWaveVisualizerUnlock();
         if (timer <= 0) {
             clearInterval(timerInterval);
             endTest();
@@ -5321,7 +5456,15 @@ function checkWaveVisualizerUnlock() {
 
     console.log(`High accuracy tests: ${highAccuracyTests}`);
 
-    if (highAccuracyTests >= 20) {
+    // Check if this is potentially the 20th high accuracy test
+    const currentAccuracy = calculateAccuracy();
+    const isPotentialHighAccuracyTest = currentAccuracy >= 90;
+    
+    if (highAccuracyTests >= 19 && isPotentialHighAccuracyTest && testActive) {
+        console.log('Unlocking during 20th high accuracy test');
+        unlockWaveVisualizer();
+        return;
+    } else if (highAccuracyTests >= 20) {
         console.log('Unlocking due to high accuracy tests');
         unlockWaveVisualizer();
         return;
@@ -5942,7 +6085,8 @@ function saveResult() {
         totalWords: totalWords,
         correctKeystrokes: correctKeystrokes,
         incorrectKeystrokes: incorrectKeystrokes,
-        duration: selectedTime
+        duration: selectedTime,
+        accuracyAtHalfway: midTestAccuracy // Add this property
     };
 
     resultSaved = true;
@@ -6128,6 +6272,10 @@ function saveResult() {
 
         if (e.data === ' ' || e.inputType === 'insertLineBreak') {
             const isCorrect = checkWord(typedWord, currentWord);
+            
+            // Track whether this word was typed correctly
+            incorrectWords[currentWordIndex] = !isCorrect;
+            
             if (isCorrect) {
                 correctWords++;
                 visualizer.updatePerformance(calculateWPM(), calculateAccuracy(), true);
@@ -6415,6 +6563,7 @@ function resetAndRestartTest() {
     incorrectKeystrokes = 0;
     totalKeystrokes = 0;
     sessionProblematicWords = {};
+    incorrectWords = {}; // Reset incorrect words tracking
 
     const instructions = document.getElementById('test-instructions');
     instructions.classList.add('active');

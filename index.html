@@ -4117,8 +4117,8 @@ function updateAchievements(latestResult) {
     }
     
     // Check if we need to refresh the word list
-    // We'll use a more exact trigger condition
-    if (currentDifficulty !== 'custom' && currentWordIndex >= words.length - 15) {
+    // Only refill when we've reached the very end of the word list
+    if (currentDifficulty !== 'custom' && currentWordIndex >= words.length) {
         refillAndResetWords();
         return; // The displayWords function will be called again from refillAndResetWords
     }
@@ -4158,7 +4158,6 @@ function updateAchievements(latestResult) {
         }
     } else {
         // Just update which word is marked as current
-        // (rest of the function remains unchanged)
         const wordElements = typingArea.querySelectorAll('.word');
         const currentWordOffset = currentWordIndex - (lastDisplayedEndIndex - wordElements.length);
         
@@ -4319,6 +4318,11 @@ function setDifficulty(level) {
 }
 
 function refillAndResetWords() {
+    // Only refill when we've reached the very end of the word list
+    if (currentWordIndex < words.length - 1) {
+        return; // Don't refill yet, we still have words left to type
+    }
+    
     // Save the current word that the user is typing
     const currentWord = words[currentWordIndex];
     
@@ -4371,8 +4375,8 @@ function displayWords() {
     }
     
     // Check if we need to refresh the word list
-    // We'll use a more exact trigger condition
-    if (currentDifficulty !== 'custom' && currentWordIndex >= words.length - 15) {
+    // Only refill when we've reached the very end of the word list
+    if (currentDifficulty !== 'custom' && currentWordIndex >= words.length) {
         refillAndResetWords();
         return; // The displayWords function will be called again from refillAndResetWords
     }
@@ -4412,7 +4416,6 @@ function displayWords() {
         }
     } else {
         // Just update which word is marked as current
-        // (rest of the function remains unchanged)
         const wordElements = typingArea.querySelectorAll('.word');
         const currentWordOffset = currentWordIndex - (lastDisplayedEndIndex - wordElements.length);
         
@@ -6885,12 +6888,17 @@ startButton.addEventListener('click', handleStartReset);
 
     // Check if there's any data
     if (validResults.length === 0) {
-        // Create a dummy chart with no visible elements
+        // Create an empty chart with proper axes and grid lines
         window.progressChart = new Chart(ctx, {
             type: 'line',
             data: {
+                labels: [''], // Add a single empty label to force axes to display
                 datasets: [{
-                    data: []
+                    label: 'WPM',
+                    data: [],
+                    borderColor: difficultyColors.all,
+                    backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                    borderWidth: 2
                 }]
             },
             options: {
@@ -6898,30 +6906,56 @@ startButton.addEventListener('click', handleStartReset);
                 maintainAspectRatio: false,
                 aspectRatio: 2,
                 scales: {
-                    x: { display: false },
-                    y: { display: false }
+                    x: {
+                        display: true,
+                        grid: {
+                            color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                        },
+                        ticks: {
+                            color: isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Date',
+                            color: isDarkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)'
+                        }
+                    },
+                    y: {
+                        display: true,
+                        beginAtZero: true,
+                        suggestedMax: 100, // Set a reasonable max value for empty chart
+                        grid: {
+                            color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                        },
+                        ticks: {
+                            color: isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)'
+                        },
+                        title: {
+                            display: true,
+                            text: 'WPM',
+                            color: isDarkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)'
+                        }
+                    }
                 },
                 plugins: {
-                    legend: { display: false },
-                    tooltip: { enabled: false },
-                    // Custom plugin to draw the "No data" message
-                    noData: {
-                        color: isDarkMode ? '#f0f0f0' : '#333',
-                        text: 'No data available for the selected time range',
-                        fontSize: 20
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        enabled: false
                     }
                 }
             },
             plugins: [{
-                id: 'noData',
+                id: 'noDataMessage',
                 afterDraw: (chart) => {
                     const { ctx, width, height } = chart;
                     ctx.save();
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.font = `${chart.options.plugins.noData.fontSize}px Arial`;
-                    ctx.fillStyle = chart.options.plugins.noData.color;
-                    ctx.fillText(chart.options.plugins.noData.text, width / 2, height / 2);
+                    ctx.font = '20px Arial';
+                    ctx.fillStyle = isDarkMode ? '#f0f0f0' : '#333';
+                    ctx.fillText('No data available for the selected time range', width / 2, height / 2);
                     ctx.restore();
                 }
             }]

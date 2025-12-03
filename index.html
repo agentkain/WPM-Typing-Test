@@ -2087,25 +2087,29 @@
 
         #word-accuracy {
             display: inline-flex;
+            align-items: center;
+            justify-content: center;
             font-size: 14px;
             background-color: rgba(0, 0, 0, 0.1);
-            padding: 2px 10px;
+            padding: 4px 10px;
             border-radius: 3px;
-            margin-right: 1px;
-            margin-left: 25px;
-            margin-top: 15px;
-
+            margin-right: 5px;
+            margin-left: 0;
+            margin-top: 10px;
+            text-align: center;
         }
 
         #key-accuracy {
             display: inline-flex;
+            align-items: center;
+            justify-content: center;
             font-size: 14px;
             background-color: rgba(0, 0, 0, 0.1);
-            padding: 2px 10px;
+            padding: 4px 10px;
             border-radius: 3px;
-            margin-left: 1px;
-            margin-top: 15px;
-
+            margin-left: 5px;
+            margin-top: 10px;
+            text-align: center;
         }
 
         /* Dark mode adjustments */
@@ -2188,7 +2192,7 @@
             justify-content: center;
             align-items: center;
             margin-bottom: 20px;
-            background-color: #b2b2b2;
+            background-color: transparent !important;
             flex-wrap: wrap;
             gap: 10px;
             padding: 10px;
@@ -3323,29 +3327,288 @@
                 border-radius: 4px;
             }
 
-            /* Accuracy Badges - Split Layout */
-            #word-accuracy {
-                grid-column: 1;
+            /* Accuracy Badges - Stacked Layout for Mobile */
+            .accuracy-badges-wrapper {
+                grid-column: 1 / -1;
                 grid-row: 2;
-                margin: 8px 0 0 0;
-                font-size: 10px;
-                justify-content: center;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
                 width: 100%;
+                margin: 0;
+            }
+
+            #word-accuracy {
+                margin: 8px 0 0 0 !important;
+                font-size: 11px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                text-align: center !important;
+                width: 100% !important;
                 box-sizing: border-box;
                 background-color: rgba(0, 0, 0, 0.05);
                 border-radius: 4px;
+                padding: 6px 4px !important;
             }
 
             #key-accuracy {
-                grid-column: 2;
-                grid-row: 2;
-                margin: 8px 0 0 0;
-                font-size: 10px;
-                justify-content: center;
-                width: 100%;
+                margin: 0 !important;
+                font-size: 11px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                text-align: center !important;
+                width: 100% !important;
                 box-sizing: border-box;
                 background-color: rgba(0, 0, 0, 0.05);
                 border-radius: 4px;
+                padding: 6px 4px !important;
+            }
+        }
+
+        /* Modern Frost Glass Look */
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            --glass-blur: blur(12px);
+            --text-color-glass: #2c3e50;
+            --glass-radius: 16px;
+        }
+
+        body.dark-mode {
+            --glass-bg: rgba(30, 30, 30, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            --text-color-glass: #f0f0f0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+        }
+
+        /* Apply glass effect to main containers */
+        #typing-area,
+        .stats-item,
+        .modal-content,
+        #keyboard-layout-container,
+        #problematic-words-container,
+        .custom-text-modal .random-words-options,
+        .custom-text-modal #custom-problematic-words-container,
+        .visualizer-opacity-slider,
+        .text-size-selector-container,
+        .difficulty-selection-container .slider-container,
+        #test-instructions {
+            background: var(--glass-bg) !important;
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border) !important;
+            box-shadow: var(--glass-shadow);
+            border-radius: var(--glass-radius) !important;
+        }
+
+        /* Adjust text colors for better contrast on glass */
+        #typing-area {
+            color: var(--text-color-glass);
+        }
+
+        /* Buttons with glass effect */
+        button,
+        #input {
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-radius: 12px !important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        #input {
+            background: rgba(255, 255, 255, 0.6) !important;
+            border: 2px solid var(--glass-border) !important;
+        }
+
+        body.dark-mode #input {
+            background: rgba(0, 0, 0, 0.5) !important;
+            color: white;
+        }
+
+        /* Enhance stats items */
+        .stats-item {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Make the title more prominent */
+        h1 {
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+
+        body.dark-mode h1 {
+            color: #ffffff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Fix for modal background in glass mode */
+        .modal {
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+        }
+
+        /* Difficulty Slider Glass Override */
+        #difficulty-filter.slider-container {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        body.dark-mode #difficulty-filter.slider-container {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Keyboard Layout Container specific tweaks */
+        #keyboard-layout-container {
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        /* Remove default backgrounds that might conflict */
+        .stat,
+        .stats-item {
+            background-color: transparent;
+        }
+
+        /* Refined Glass UI Overrides */
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --glass-border: rgba(255, 255, 255, 1.0);
+            --glass-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.15);
+        }
+
+        body.dark-mode {
+            --glass-bg: rgba(30, 30, 30, 0.8);
+            --glass-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.6);
+        }
+
+        body {
+            background: #eef2f5 !important;
+            background-image: none !important;
+        }
+
+        body.dark-mode {
+            background: #121212 !important;
+            background-image: none !important;
+        }
+
+        .modal-content {
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+        }
+
+        .modal {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        #input {
+            background: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        body.dark-mode #input {
+            background: rgba(0, 0, 0, 0.6) !important;
+        }
+
+        /* Fix visibility for keyboard controls in light mode */
+        .layout-selector label,
+        .toggle-group .toggle-label,
+        .toggle-label {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        body.dark-mode .layout-selector label,
+        body.dark-mode .toggle-group .toggle-label,
+        body.dark-mode .toggle-label {
+            color: #f0f0f0;
+        }
+
+        /* Ensure the keyboard layout selector dropdown is also styled */
+        #keyboard-layout-selector {
+            background-color: rgba(255, 255, 255, 0.8);
+            color: #2c3e50;
+            border: 1px solid #ccc;
+        }
+
+        body.dark-mode #keyboard-layout-selector {
+            background-color: #444;
+            color: #fff;
+            border: none;
+        }
+
+        /* Desktop accuracy box layout - keep badges on one line */
+        .accuracy-badges-wrapper {
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        #word-accuracy,
+        #key-accuracy {
+            flex-shrink: 0;
+        }
+
+        /* Fix accuracy box column layout for desktop */
+        #accuracy-box {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+        }
+
+        /* Mobile-specific fix for text centering */
+        @media (max-width: 600px) {
+
+            #accuracy-box span#word-accuracy,
+            #accuracy-box span#key-accuracy {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                text-align: center !important;
+            }
+        }
+
+        /* Mobile left-align for keyboard controls */
+        @media (max-width: 600px) {
+            #keyboard-layout-container {
+                justify-content: flex-start !important;
+                background-color: transparent !important;
+                padding: 5px !important;
+            }
+
+            .keyboard-controls {
+                justify-content: flex-start !important;
+                width: 100%;
+            }
+
+            .toggle-group {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+
+            .layout-selector {
+                margin-left: 0 !important;
             }
         }
     </style>
@@ -3428,8 +3691,10 @@
         <div id="accuracy-box" class="stats-item">
             <strong>Accuracy:</strong>
             <div id="accuracy" class="animated-number">100%</div>
-            <span id="word-accuracy" title="Word Accuracy">Word:100%</span>
-            <span id="key-accuracy" title="Key Accuracy">Key:100%</span>
+            <div class="accuracy-badges-wrapper">
+                <span id="word-accuracy" title="Word Accuracy">Word:100%</span>
+                <span id="key-accuracy" title="Key Accuracy">Key:100%</span>
+            </div>
         </div>
     </div>
     <button id="start-button" onclick="checkDifficulty()"

@@ -2319,12 +2319,30 @@
 
 
 
+        /* Define transitions for UI elements */
+        .stats-group,
+        .button-group,
+        h1,
+        #keyboard-layout-container>*:not(#hide-ui-toggle-container) {
+            transition: all 0.5s ease;
+            opacity: 1;
+            transform: translateY(0);
+            max-height: 500px;
+        }
+
         body.hide-ui .stats-group,
         body.hide-ui #keyboard-layout-container>*:not(#hide-ui-toggle-container),
         body.hide-ui .button-group,
         body.hide-ui h1 {
-            display: none;
-            transition: 0.5s;
+            opacity: 0;
+            transform: translateY(-20px);
+            pointer-events: none;
+            max-height: 0;
+            margin-top: 0;
+            margin-bottom: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            overflow: hidden;
         }
 
         body.hide-ui #keyboard-layout-container {
@@ -2391,7 +2409,7 @@
             color: #34495e;
             text-align: center;
             border-radius: 5px;
-            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+            transition: all 0.5s ease-out;
             opacity: 0;
             transform: translateY(20px);
             pointer-events: none;
@@ -3506,6 +3524,7 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.6) !important;
+            transition: all 0.5s ease;
         }
 
         /* Remove default backgrounds that might conflict */
@@ -3518,12 +3537,15 @@
         :root {
             --glass-bg: rgba(255, 255, 255, 0.9);
             --glass-border: rgba(255, 255, 255, 1.0);
-            --glass-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.15);
+            --shadow-color-rgb: 0, 0, 0;
+            --shadow-opacity: 0.15;
+            --glass-shadow: 0 10px 40px 0 rgba(var(--shadow-color-rgb), var(--shadow-opacity));
         }
 
         body.dark-mode {
             --glass-bg: rgba(30, 30, 30, 0.8);
-            --glass-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.6);
+            --shadow-opacity: 0.6;
+            --glass-shadow: 0 10px 40px 0 rgba(var(--shadow-color-rgb), var(--shadow-opacity));
         }
 
         body {
@@ -5895,15 +5917,15 @@
             if (hideUI) {
                 // Wait for the animation to complete before removing elements from the DOM
                 setTimeout(() => {
-                    document.querySelectorAll('.stats-group, .button-group, h1').forEach(el => {
+                    document.querySelectorAll('.stats-group, .button-group, h1, #keyboard-layout-container > *:not(#hide-ui-toggle-container)').forEach(el => {
                         if (el.id !== 'hide-ui-toggle-container') {
                             el.style.display = 'none';
                         }
                     });
-                }, 300); // 300ms matches the transition duration
+                }, 500); // 500ms matches the transition duration
             } else {
                 // Immediately make elements visible when showing UI
-                document.querySelectorAll('.stats-group, .button-group, h1, .top-controls').forEach(el => {
+                document.querySelectorAll('.stats-group, .button-group, h1, .top-controls, #keyboard-layout-container > *:not(#hide-ui-toggle-container)').forEach(el => {
                     el.style.display = '';
                 });
             }
@@ -6563,6 +6585,16 @@
 
 
 
+        function hexToRgb(hex) {
+            var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+            hex = hex.replace(shorthandRegex, function (m, r, g, b) {
+                return r + r + g + g + b + b;
+            });
+
+            var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : null;
+        }
+
         function updateUIForDifficulty(level) {
             const elementsToUpdate = [
                 document.getElementById('typing-area'),
@@ -6573,6 +6605,15 @@
             ];
 
             const color = getComputedStyle(document.documentElement).getPropertyValue(`--${level}-color`).trim();
+
+            if (level === 'custom') {
+                document.documentElement.style.setProperty('--shadow-color-rgb', '0, 0, 0');
+            } else {
+                const rgb = hexToRgb(color);
+                if (rgb) {
+                    document.documentElement.style.setProperty('--shadow-color-rgb', rgb);
+                }
+            }
 
             elementsToUpdate.forEach(element => {
                 if (element) {

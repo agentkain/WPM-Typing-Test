@@ -247,11 +247,17 @@
             display: flex;
             justify-content: space-between;
             margin-bottom: 5px;
-            overflow: hidden;
             border-radius: 5px;
             height: auto;
             flex-wrap: wrap;
             gap: 10px;
+        }
+
+        .stats-group.animated-stats {
+            background: transparent !important;
+            background-image: none !important;
+            box-shadow: none !important;
+            border: none !important;
         }
 
         .current-word.incorrect {
@@ -2192,7 +2198,6 @@
             justify-content: center;
             align-items: center;
             margin-bottom: 20px;
-            background-color: transparent !important;
             flex-wrap: wrap;
             gap: 10px;
             padding: 10px;
@@ -2323,8 +2328,14 @@
         }
 
         body.hide-ui #keyboard-layout-container {
-            background-color: transparent;
-            padding: 0;
+            background: transparent !important;
+            border: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            justify-content: flex-start !important;
+            width: 100% !important;
         }
 
         body.hide-ui #hide-ui-toggle-container {
@@ -3285,14 +3296,23 @@
             }
 
             /* WPM & Accuracy - Grid Layout for "Filled" Look */
-            #wpm-box,
+            /* Accuracy - Grid Layout for "Filled" Look */
             #accuracy-box {
                 flex: 1 1 45%;
                 display: grid;
                 grid-template-columns: 1fr 1fr;
                 grid-template-rows: auto auto auto;
-                /* Added row for stacking if needed */
                 align-items: center;
+                gap: 5px;
+            }
+
+            /* WPM - Centered Layout */
+            #wpm-box {
+                flex: 1 1 45%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
                 gap: 5px;
             }
 
@@ -3482,6 +3502,10 @@
         #keyboard-layout-container {
             padding: 15px;
             margin-top: 20px;
+            background: rgba(255, 255, 255, 0.4) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6) !important;
         }
 
         /* Remove default backgrounds that might conflict */
@@ -3593,7 +3617,7 @@
         @media (max-width: 600px) {
             #keyboard-layout-container {
                 justify-content: flex-start !important;
-                background-color: transparent !important;
+                width: 100%;
                 padding: 5px !important;
             }
 

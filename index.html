@@ -3955,6 +3955,13 @@
                     <p id="custom-problematic-words-list"></p>
                     <button id="custom-add-problematic-words">Add to Custom Text</button>
                 </div>
+                <div id="custom-problematic-patterns-container"
+                    style="flex: 1; background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin-left: 20px;">
+                    <h4>Top Problematic Patterns:</h4>
+                    <div id="custom-problematic-patterns-list"
+                        style="display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px;"></div>
+                    <button id="custom-add-problematic-patterns">Add to Custom Text</button>
+                </div>
             </div>
             <div class="modal-buttons">
                 <button onclick="startCustomTextTest()">Start Custom Test</button>
@@ -4002,6 +4009,7 @@
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.5/d3.layout.cloud.min.js"></script>
     <script>
+        let currentPracticePattern = null;
         const achievements = [
             {
                 id: 'first_10_wpm',
@@ -5378,6 +5386,38 @@
                 } else {
                     console.error("Generate Random Words button not found");
                 }
+
+                // Add event listener to the "Add to Custom Text" button for problematic patterns
+                const addPatternsButton = document.getElementById('custom-add-problematic-patterns');
+                if (addPatternsButton) {
+                     // Clone to remove old listeners
+                    const newBtn = addPatternsButton.cloneNode(true);
+                    addPatternsButton.parentNode.replaceChild(newBtn, addPatternsButton);
+                    
+                    newBtn.addEventListener('click', function () {
+                        const customTextInput = document.getElementById('custom-text-input');
+                        const patterns = analyzeErrorPatterns().map(p => p.pattern);
+                        
+                        // Generate words for these patterns
+                        const allWords = [...beginnerWords, ...intermediateWords, ...advancedWords];
+                        let patternWords = [];
+                        
+                        patterns.forEach(pattern => {
+                            const matchingWords = allWords.filter(word => word.toLowerCase().includes(pattern.toLowerCase()));
+                            // Take up to 5 words per pattern
+                            patternWords.push(...matchingWords.sort(() => Math.random() - 0.5).slice(0, 5));
+                        });
+                        
+                        // Shuffle and limit
+                        patternWords = patternWords.sort(() => Math.random() - 0.5).slice(0, 20);
+
+                        const currentWords = customTextInput.value.split(/\s+/).filter(w => w.length > 0);
+                        const newWords = [...currentWords, ...patternWords].slice(0, 100);
+                        customTextInput.value = newWords.join(' ');
+                    });
+                }
+
+                updateCustomTextModalProblematicPatterns();
             } else {
                 console.error("Custom text modal not found");
             }
@@ -5978,6 +6018,9 @@
         }
 
         function startTest(isCustomTest = false) {
+            if (!isCustomTest) {
+                currentPracticePattern = null;
+            }
             let resultSaved = false;
             recentlyClosedProgressModal = false;
 
@@ -6068,6 +6111,7 @@
             currentWordIndex = 0;
             sessionProblematicWords = {};
             incorrectWords = {}; // Reset incorrect words tracking
+            currentWordKeystrokeErrors = 0;
 
             typingArea.textContent = ''; // Clear the instruction text
             displayWords();
@@ -6995,12 +7039,13 @@
                 // Update word error tracker
                 for (const [word, data] of Object.entries(sessionProblematicWords)) {
                     if (!wordErrorTracker[word]) {
-                        wordErrorTracker[word] = { errors: 0, total: 0, totalTime: 0, totalKeystrokes: 0, difficulty: currentDifficulty };
+                        wordErrorTracker[word] = { errors: 0, total: 0, totalTime: 0, totalKeystrokes: 0, keystrokeErrors: 0, difficulty: currentDifficulty };
                     }
                     wordErrorTracker[word].errors += data.errors;
                     wordErrorTracker[word].total += data.total;
                     wordErrorTracker[word].totalTime += data.totalTime;
                     wordErrorTracker[word].totalKeystrokes += data.totalKeystrokes;
+                    wordErrorTracker[word].keystrokeErrors += (data.keystrokeErrors || 0);
                     wordErrorTracker[word].lastUpdated = Date.now();
                 }
 
@@ -7014,6 +7059,24 @@
             const isDarkMode = document.body.classList.contains('dark-mode');
 
             const sessionProblematicWordsList = getSessionProblematicWords().join(', ');
+
+            // Analyze patterns
+            const problematicPatterns = analyzeErrorPatterns();
+            let patternsHtml = '';
+            if (problematicPatterns.length > 0) {
+                patternsHtml = `
+                <div id="problematic-patterns-container" style="background-color: rgba(200, 200, 200, 0.5); border-radius: 8px; padding: 20px; margin-bottom: 30px; max-width: 800px; margin-left: auto; margin-right: auto;">
+                    <h4 style="margin-top: 0; margin-bottom: 10px;">Problematic Patterns:</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+                        ${problematicPatterns.map(p => `
+                            <div style="background: rgba(0,0,0,0.1); padding: 5px 10px; border-radius: 4px; display: flex; align-items: center; gap: 10px;">
+                                <span><strong>"${p.pattern}"</strong> (Score: ${p.score.toFixed(1)})</span>
+                                <button onclick="startPatternPractice('${p.pattern}')" style="padding: 2px 8px; font-size: 12px; cursor: pointer;">Practice</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+            }
             resultContent.innerHTML = `
         <div style="text-align: center; margin-bottom: 30px;">
             <h2 style="font-size: 32px; margin-bottom: 15px;">Your <span style="color: ${difficultyColor};">${difficultyName}</span> Results</h2>
@@ -7049,6 +7112,7 @@
             <h4 style="margin-top: 0; margin-bottom: 10px;">Challenging Words (This Session):</h4>
             <p id="problematic-words-list-session" style="margin: 0;">${sessionProblematicWordsList || 'None'}</p>
         </div>
+        ${patternsHtml}
         <div style="width: 100%; max-width: 900px; height: 350px; margin-bottom: 30px; margin-left: auto; margin-right: auto;">
             <canvas id="performance-chart"></canvas>
         </div>
@@ -7180,6 +7244,7 @@
                     sessionProblematicWords[currentWord].total += 1;
                     sessionProblematicWords[currentWord].totalTime += wordTime;
                     sessionProblematicWords[currentWord].totalKeystrokes += currentWordKeystrokes;
+                    sessionProblematicWords[currentWord].keystrokeErrors += currentWordKeystrokeErrors;
 
                     totalWords++;
                     currentWordIndex++;
@@ -7189,6 +7254,7 @@
 
                     currentWordKeystrokes = 0;
                     currentWordCorrectKeystrokes = 0;
+                    currentWordKeystrokeErrors = 0;
                     wordStartTime = Date.now();
 
                     if (currentDifficulty === 'custom') {
@@ -7219,6 +7285,7 @@
                             // Update heatmap only for incorrect keystrokes
                             const char = e.data.toLowerCase();
                             updateHeatmap(char);
+                            currentWordKeystrokeErrors++;
                         }
                     } else {
                         // If it's a space, don't count it for accuracy, but do count it for total keystrokes
@@ -7238,6 +7305,7 @@
 
                     // Update heatmap for backspace
                     updateHeatmap('backspace');
+                    currentWordKeystrokeErrors++;
                 }
 
                 // Update stats after each input
@@ -7516,7 +7584,11 @@
             updateStats(true);
 
             if (currentDifficulty === 'custom') {
-                showCustomTestResult();
+                if (currentPracticePattern) {
+                    showPatternPracticeResult();
+                } else {
+                    showCustomTestResult();
+                }
             } else {
                 saveResult();
                 let latestResult = {
@@ -8376,7 +8448,8 @@
                     </div>
                 </div>
             </div>
-            <div style="width: 100%; max-width: 900px; height: 350px; margin-bottom: 30px; margin-left: auto; margin-right: auto;">
+            ${patternsHtml}
+        <div style="width: 100%; max-width: 900px; height: 350px; margin-bottom: 30px; margin-left: auto; margin-right: auto;">
                 <canvas id="performance-chart"></canvas>
             </div>
             <div style="text-align: center; margin-top: 20px;">
@@ -9196,7 +9269,30 @@
             const sortedWords = Object.entries(tracker)
                 .map(([word, data]) => {
                     console.log('Processing word:', word, 'Data:', data);
-                    return { word, score: data.errors / data.total, difficulty: data.difficulty };
+                    // Weighted Score Calculation
+                    const submissionErrorRate = data.errors / data.total;
+                    const correctionRate = (data.keystrokeErrors || 0) / (data.totalKeystrokes || 1); // Avoid division by zero
+                    const avgTime = data.totalTime / data.total;
+
+                    // Time Threshold: Ignore words typed faster than 1.0s on average, unless they have a very high error rate?
+                    // User requested: "if someone can type it less then lets say 1 second. then maybe not consider a challenging pattern"
+                    // We'll apply this to challenging words too.
+                    if (avgTime <= 1.0) {
+                        return null;
+                    }
+
+                    // Normalize time (assuming 5 chars/word, 60 WPM = 1s/word. Slower = higher score)
+                    // Cap normalized time effect to avoid skewing too much for slow typists
+                    const normalizedTime = Math.min(avgTime, 3.0) / 3.0;
+
+                    // Weights
+                    const w1 = 0.6; // Submission errors are most critical
+                    const w2 = 0.3; // Corrections mean struggle
+                    const w3 = 0.1; // Slowness indicates difficulty
+
+                    const score = (submissionErrorRate * w1) + (correctionRate * w2) + (normalizedTime * w3);
+
+                    return { word, score: score, difficulty: data.difficulty };
                 })
                 .sort((a, b) => b.score - a.score)
                 .slice(0, count);
@@ -10753,6 +10849,181 @@
         window.addEventListener('resize', adjustModalSize);
 
 
+
+        function analyzeErrorPatterns() {
+            const tracker = JSON.parse(localStorage.getItem('wordErrorTracker')) || {};
+            const patterns = {};
+            const patternCounts = {};
+
+            Object.entries(tracker).forEach(([word, data]) => {
+                // Filter: Only analyze words where avgTime > 1.0s OR errorRate > 0
+                const avgTime = data.totalTime / data.total;
+                const errorRate = data.errors / data.total;
+
+                if (avgTime <= 1.0 && errorRate === 0) {
+                    return; // Skip fast and correct words
+                }
+
+                // Extract bigrams and trigrams
+                for (let i = 0; i < word.length - 1; i++) {
+                    const bigram = word.substring(i, i + 2).toLowerCase();
+                    if (/^[a-z]+$/.test(bigram)) {
+                        patterns[bigram] = (patterns[bigram] || 0) + (data.errors + (data.keystrokeErrors || 0));
+                        patternCounts[bigram] = (patternCounts[bigram] || 0) + 1;
+                    }
+                }
+                for (let i = 0; i < word.length - 2; i++) {
+                    const trigram = word.substring(i, i + 3).toLowerCase();
+                    if (/^[a-z]+$/.test(trigram)) {
+                        patterns[trigram] = (patterns[trigram] || 0) + (data.errors + (data.keystrokeErrors || 0));
+                        patternCounts[trigram] = (patternCounts[trigram] || 0) + 1;
+                    }
+                }
+            });
+
+            // Convert to array and sort
+            return Object.entries(patterns)
+                .map(([pattern, score]) => ({ pattern, score, count: patternCounts[pattern] }))
+                .filter(item => item.score > 0) // Only return patterns with actual errors
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 5); // Top 5 patterns
+        }
+
+        function startPatternPractice(pattern) {
+            // Find words containing the pattern from all difficulty lists
+            const allWords = [...beginnerWords, ...intermediateWords, ...advancedWords];
+            let practiceWords = allWords.filter(word => word.toLowerCase().includes(pattern.toLowerCase()));
+
+            // If not enough words, repeat them
+            if (practiceWords.length < 20) {
+                while (practiceWords.length < 50) {
+                    practiceWords = practiceWords.concat(practiceWords);
+                }
+            }
+
+            // Shuffle
+            practiceWords = practiceWords.sort(() => Math.random() - 0.5).slice(0, 50);
+
+            // Set up custom test
+            currentPracticePattern = pattern;
+            currentDifficulty = 'custom';
+            words = practiceWords;
+            originalCustomText = words.join(' '); // Store for reset
+
+            // Update UI
+            updateUIForDifficulty('custom');
+
+            // Start test
+            startTest(true);
+
+            // Close modal if open
+            closeModal('results');
+        }
+
+        // Redefine getTopProblematicWords
+        function getTopProblematicWords(count = 10, wordsOnly = false) {
+            const tracker = JSON.parse(localStorage.getItem('wordErrorTracker')) || {};
+            const sortedWords = Object.entries(tracker).map(([word, data]) => {
+                const submissionErrorRate = data.errors / data.total;
+                const correctionRate = (data.keystrokeErrors || 0) / (data.totalKeystrokes || 1);
+                const avgTime = data.totalTime / data.total;
+                if (avgTime <= 1.0) return null;
+                const normalizedTime = Math.min(avgTime, 3.0) / 3.0;
+                const w1 = 0.6, w2 = 0.3, w3 = 0.1;
+                const score = (submissionErrorRate * w1) + (correctionRate * w2) + (normalizedTime * w3);
+                return { word, score, difficulty: data.difficulty };
+            }).filter(item => item !== null).sort((a, b) => b.score - a.score).slice(0, count);
+            if (wordsOnly) return sortedWords.map(item => item.word);
+            return sortedWords;
+        }
+
+        function showPatternPracticeResult() {
+            const wpm = parseInt(wpmDisplay.textContent);
+            const accuracy = calculateAccuracy();
+
+            // Update wordErrorTracker
+            const tracker = JSON.parse(localStorage.getItem('wordErrorTracker')) || {};
+            for (const [word, data] of Object.entries(sessionProblematicWords)) {
+                if (!tracker[word]) {
+                    tracker[word] = { errors: 0, total: 0, totalTime: 0, totalKeystrokes: 0, keystrokeErrors: 0, difficulty: 'custom' };
+                }
+                tracker[word].errors += data.errors;
+                tracker[word].total += data.total;
+                tracker[word].totalTime += data.totalTime;
+                tracker[word].totalKeystrokes += data.totalKeystrokes;
+                tracker[word].keystrokeErrors += (data.keystrokeErrors || 0);
+                tracker[word].lastUpdated = Date.now();
+            }
+            localStorage.setItem('wordErrorTracker', JSON.stringify(tracker));
+
+            const resultContent = document.getElementById('result-content');
+
+            // Custom HTML for pattern practice
+            resultContent.innerHTML = `
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h2 style="font-size: 32px; margin-bottom: 15px;">Pattern Practice: <span style="color: var(--highlight-color); font-family: monospace;">"${currentPracticePattern}"</span></h2>
+                    <p style="font-size: 20px;">Great job focusing on your weak spots!</p>
+                </div>
+                <div style="display: flex; justify-content: center; gap: 50px; margin-bottom: 30px;">
+                    <div style="text-align: center;">
+                        <h3 style="font-size: 50px; margin: 0; color: var(--highlight-color);">${wpm}</h3>
+                        <p style="font-size: 18px; opacity: 0.8;">WPM</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <h3 style="font-size: 50px; margin: 0; color: var(--highlight-color);">${accuracy}%</h3>
+                        <p style="font-size: 18px; opacity: 0.8;">Accuracy</p>
+                    </div>
+                </div>
+                <div style="background-color: rgba(200, 200, 200, 0.5); border-radius: 8px; padding: 20px; margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                    <p>You practiced words containing <strong>"${currentPracticePattern}"</strong>.</p>
+                    <p>Your stats for these words have been updated to help track your improvement.</p>
+                </div>
+                <div style="text-align: center;">
+                    <button onclick="startPatternPractice('${currentPracticePattern}')" style="padding: 10px 20px; font-size: 16px; background-color: #34495e; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">Practice Again</button>
+                    <button onclick="closeModal('results')" style="padding: 10px 20px; font-size: 16px; background-color: #7f8c8d; color: white; border: none; border-radius: 5px; cursor: pointer;">Close</button>
+                </div>
+            `;
+
+            showModal('results');
+        }
+
+        function updateCustomTextModalProblematicPatterns() {
+            const container = document.getElementById('custom-problematic-patterns-list');
+            if (!container) return;
+
+            const patterns = analyzeErrorPatterns();
+            if (patterns.length === 0) {
+                container.innerHTML = '<span style="color: #666;">No problematic patterns found yet.</span>';
+                document.getElementById('custom-add-problematic-patterns').disabled = true;
+                return;
+            }
+
+            document.getElementById('custom-add-problematic-patterns').style.display = 'none'; // Hide the bulk add button
+            container.innerHTML = patterns.map(p => `
+                <div style="background: rgba(0,0,0,0.1); padding: 5px 10px; border-radius: 4px; display: flex; align-items: center; gap: 10px;">
+                    <span><strong>"${p.pattern}"</strong> (Score: ${p.score.toFixed(1)})</span>
+                    <button class="add-pattern-btn" data-pattern="${p.pattern}" style="padding: 2px 8px; font-size: 12px; cursor: pointer; background-color: #34495e; color: white; border: none; border-radius: 3px;">Add</button>
+                </div>
+            `).join('');
+
+            // Add event listeners to the new buttons
+            container.querySelectorAll('.add-pattern-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const pattern = this.getAttribute('data-pattern');
+                    const customTextInput = document.getElementById('custom-text-input');
+                    
+                    // Generate words for this specific pattern
+                    const allWords = [...beginnerWords, ...intermediateWords, ...advancedWords];
+                    const matchingWords = allWords.filter(word => word.toLowerCase().includes(pattern.toLowerCase()));
+                    // Take up to 10 words for this pattern
+                    const patternWords = matchingWords.sort(() => Math.random() - 0.5).slice(0, 10);
+                    
+                    const currentWords = customTextInput.value.split(/\s+/).filter(w => w.length > 0);
+                    const newWords = [...currentWords, ...patternWords].slice(0, 100);
+                    customTextInput.value = newWords.join(' ');
+                });
+            });
+        }
 
     </script>
 

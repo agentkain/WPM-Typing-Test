@@ -5194,11 +5194,10 @@
                         ${isCurrentWord ? 'id="current-word"' : ''}>${generateWordHTML(word, isCurrentWord)}</span>`;
                 }).join(' ');
 
-                // After a refill, make sure the typing area is scrolled to the top
-                if (currentWordIndex === 0) {
-                    typingArea.scrollTop = 0;
-                    typingArea.scrollLeft = 0;
-                }
+                // Reset scroll position when refreshing the word list
+                // This keeps the current word at the top since we're rebasing the content
+                typingArea.scrollTop = 0;
+                typingArea.scrollLeft = 0;
             } else {
                 // Just update which word is marked as current
                 const wordElements = typingArea.querySelectorAll('.word');
@@ -5235,7 +5234,9 @@
 
                 // Calculate relative position
                 const relativeTop = currentWordRect.top - typingAreaRect.top;
-                const threshold = typingArea.clientHeight / 2;
+
+                // Keep the current word near the top of the visible area
+                const threshold = currentWordRect.height * 1.5;
 
                 if (relativeTop > threshold) {
                     typingArea.scrollTop += (relativeTop - threshold);
@@ -5390,24 +5391,24 @@
                 // Add event listener to the "Add to Custom Text" button for problematic patterns
                 const addPatternsButton = document.getElementById('custom-add-problematic-patterns');
                 if (addPatternsButton) {
-                     // Clone to remove old listeners
+                    // Clone to remove old listeners
                     const newBtn = addPatternsButton.cloneNode(true);
                     addPatternsButton.parentNode.replaceChild(newBtn, addPatternsButton);
-                    
+
                     newBtn.addEventListener('click', function () {
                         const customTextInput = document.getElementById('custom-text-input');
                         const patterns = analyzeErrorPatterns().map(p => p.pattern);
-                        
+
                         // Generate words for these patterns
                         const allWords = [...beginnerWords, ...intermediateWords, ...advancedWords];
                         let patternWords = [];
-                        
+
                         patterns.forEach(pattern => {
                             const matchingWords = allWords.filter(word => word.toLowerCase().includes(pattern.toLowerCase()));
                             // Take up to 5 words per pattern
                             patternWords.push(...matchingWords.sort(() => Math.random() - 0.5).slice(0, 5));
                         });
-                        
+
                         // Shuffle and limit
                         patternWords = patternWords.sort(() => Math.random() - 0.5).slice(0, 20);
 
@@ -11008,16 +11009,16 @@
 
             // Add event listeners to the new buttons
             container.querySelectorAll('.add-pattern-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', function () {
                     const pattern = this.getAttribute('data-pattern');
                     const customTextInput = document.getElementById('custom-text-input');
-                    
+
                     // Generate words for this specific pattern
                     const allWords = [...beginnerWords, ...intermediateWords, ...advancedWords];
                     const matchingWords = allWords.filter(word => word.toLowerCase().includes(pattern.toLowerCase()));
                     // Take up to 10 words for this pattern
                     const patternWords = matchingWords.sort(() => Math.random() - 0.5).slice(0, 10);
-                    
+
                     const currentWords = customTextInput.value.split(/\s+/).filter(w => w.length > 0);
                     const newWords = [...currentWords, ...patternWords].slice(0, 100);
                     customTextInput.value = newWords.join(' ');

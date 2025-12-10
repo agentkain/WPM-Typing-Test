@@ -4767,21 +4767,33 @@
             return wordList.sort(() => 0.5 - Math.random());
         }
 
+        function getRandomSubset(sourceArray, count) {
+            const subset = [];
+            const sourceLength = sourceArray.length;
+            for (let i = 0; i < count; i++) {
+                const randomIndex = Math.floor(Math.random() * sourceLength);
+                subset.push(sourceArray[randomIndex]);
+            }
+            return subset;
+        }
+
         function resetWordList() {
             if (currentDifficulty !== 'custom') {
                 words = [];
                 switch (currentDifficulty) {
                     case 'beginner':
-                        words = shuffleWords(beginnerWords);
+                        words = shuffleWords([...beginnerWords]);
                         break;
                     case 'intermediate':
-                        words = shuffleWords(intermediateWords);
+                        words = shuffleWords([...intermediateWords]);
                         break;
                     case 'advanced':
-                        words = shuffleWords(addRandomPunctuation(advancedWords));
+                        // Optimization: Sample a subset to avoid overhead of punctuation on 3000+ words
+                        // 300 words is plenty for a start, will refill automatically
+                        words = shuffleWords(addRandomPunctuation(getRandomSubset(advancedWords, 300)));
                         break;
                     default:
-                        words = shuffleWords(beginnerWords);
+                        words = shuffleWords([...beginnerWords]);
                 }
             }
             currentWordIndex = 0;
@@ -5071,7 +5083,9 @@
                     newWords = shuffleWords([...intermediateWords]);
                     break;
                 case 'advanced':
-                    newWords = shuffleWords(addRandomPunctuation([...advancedWords]));
+                    // Optimization: Sample a subset to avoid overhead of punctuation on 3000+ words
+                    // Sample 100 words for refill (smaller batch than reset is fine)
+                    newWords = shuffleWords(addRandomPunctuation(getRandomSubset(advancedWords, 100)));
                     break;
                 default:
                     newWords = shuffleWords([...beginnerWords]);

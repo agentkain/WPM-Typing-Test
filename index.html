@@ -3970,18 +3970,7 @@
         </div>
     </div>
 
-    <div id="results" class="modal">
-        <div class="modal-content">
-            <div id="result-content"></div>
-            <div style="display: flex; justify-content: space-between; gap: 10px; margin-top: 20px;">
-                <button onclick="openProgressModal()"
-                    style="flex: 1; padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">View
-                    Full Progress</button>
-                <button onclick="closeModal('results')"
-                    style="flex: 1; padding: 10px; background-color: #d9534f; color: white; border: none; border-radius: 4px; cursor: pointer;">Close</button>
-            </div>
-        </div>
-    </div>
+
     <div id="resetModal" class="modal">
         <div class="modal-content">
             <h2>Confirm Reset</h2>
@@ -8387,6 +8376,8 @@
 
             const encouragementMsg = getEncouragementMessage(wpm, accuracy);
             const isDarkMode = document.body.classList.contains('dark-mode');
+            let patternsHtml = '';
+
 
             resultContent.innerHTML = `
             <div style="text-align: center; margin-bottom: 30px;">
@@ -10955,7 +10946,7 @@
                 </div>
             `;
 
-            showModal('results');
+            // showModal('results');
         }
 
         function updateCustomTextModalProblematicPatterns() {

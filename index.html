@@ -4577,7 +4577,6 @@
 
         const advancedWords = [
             ...intermediateWords,
-            ...beginnerWords,
             "curriculum", "syllabus", "academia", "dissertation", "thesis", "laboratory", "experiment", "hypothesis", "theory",
             "synthesis", "evaluation", "critical", "thinking", "problem", "solving", "brainstorming", "collaboration", "teamwork", "leadership",
             "organization", "prioritization", "multitasking", "presentation", "speaking",
@@ -4758,7 +4757,7 @@
         input.disabled = true;
 
         function shuffleWords(wordList) {
-            return wordList.sort(() => 0.5 - Math.random());
+            return [...wordList].sort(() => 0.5 - Math.random());
         }
 
         function resetWordList() {

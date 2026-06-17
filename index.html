@@ -3569,10 +3569,10 @@
         /* Final modal sizing pass: keep every dialog inside the viewport. */
         .modal {
             box-sizing: border-box;
-            align-items: center;
+            align-items: flex-start !important;
             justify-content: center;
             overflow-y: auto;
-            padding: clamp(12px, 3vw, 32px);
+            padding: 12px;
         }
 
         .modal-content,
@@ -3582,10 +3582,11 @@
         #chartPointModal .modal-content {
             box-sizing: border-box;
             width: min(100%, 900px);
-            max-height: calc(100dvh - (clamp(12px, 3vw, 32px) * 2));
-            margin: 0 auto;
+            max-height: calc(100vh - 24px);
+            max-height: calc(100dvh - 24px);
+            margin: 0 auto !important;
             overflow-y: auto;
-            transform: none;
+            transform: none !important;
         }
 
         #supportModal .modal-content {
@@ -3631,13 +3632,40 @@
         body.black-white-mode .modal-content,
         body.black-white-mode #custom-text-modal .modal-content,
         body.black-white-mode #progressModal .modal-content {
-            margin: 0 auto;
-            max-height: calc(100dvh - (clamp(12px, 3vw, 32px) * 2));
-            top: auto;
-            transform: none;
+            margin: 0 auto !important;
+            max-height: calc(100vh - 24px);
+            max-height: calc(100dvh - 24px);
+            top: auto !important;
+            transform: none !important;
+        }
+
+        @media (min-width: 720px) {
+            .modal {
+                padding: 24px;
+            }
+
+            .modal-content,
+            #supportModal .modal-content,
+            .custom-text-modal .modal-content,
+            #progressModal .modal-content,
+            #chartPointModal .modal-content,
+            body.black-white-mode .modal-content,
+            body.black-white-mode #custom-text-modal .modal-content,
+            body.black-white-mode #progressModal .modal-content {
+                max-height: calc(100vh - 48px);
+                max-height: calc(100dvh - 48px);
+            }
         }
 
         @media (max-width: 720px) {
+            .modal-content,
+            #supportModal .modal-content,
+            .custom-text-modal .modal-content,
+            #progressModal .modal-content,
+            #chartPointModal .modal-content {
+                padding: 16px;
+            }
+
             .custom-text-modal .options-section {
                 flex-direction: column;
                 gap: 12px;

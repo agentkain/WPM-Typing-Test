@@ -3594,12 +3594,13 @@
         }
 
         #progressModal .modal-content {
+            display: block;
             min-height: 0;
         }
 
         #progressModal .carousel {
             display: block;
-            flex: 0 1 auto;
+            flex: none;
             height: auto;
             min-height: 0;
             overflow: visible;
@@ -4742,6 +4743,7 @@
 
         let words = [];
         let currentWordIndex = 0;
+        let visibleStartIndex = 0;
         let lastDisplayedEndIndex = 0;
         let startTime;
         let timer;
@@ -5209,6 +5211,7 @@
             // Handle custom text wrap (legacy support)
             if (currentDifficulty === 'custom' && currentWordIndex >= words.length) {
                 currentWordIndex = 0;
+                visibleStartIndex = 0;
                 typingArea.scrollTop = 0;
                 typingArea.scrollLeft = 0;
                 incorrectWords = {};
@@ -5223,18 +5226,9 @@
 
             // Initial State Check
             if (currentWordIndex === 0 && (lastDisplayedEndIndex !== 0 || typingArea.children.length === 0)) {
+                visibleStartIndex = 0;
                 lastDisplayedEndIndex = 0;
                 typingArea.innerHTML = '';
-            }
-
-            // Append new words if necessary
-            if (lastDisplayedEndIndex < words.length) {
-                const wordsToAdd = words.slice(lastDisplayedEndIndex);
-                const newHTML = wordsToAdd.map(word => `<span class="word">${word}</span>`).join(' ');
-
-                // Efficiently append new words without disturbing existing DOM
-                typingArea.insertAdjacentHTML('beforeend', newHTML);
-                lastDisplayedEndIndex = words.length;
             }
 
             const generateWordHTML = (word, isCurrent) => {
@@ -5276,6 +5270,37 @@
                 return charHTML;
             };
 
+            const shouldRefreshWindow = currentWordIndex === 0
+                || typingArea.children.length === 0
+                || !document.getElementById('current-word')
+                || currentWordIndex < visibleStartIndex
+                || currentWordIndex >= lastDisplayedEndIndex - 5;
+
+            if (shouldRefreshWindow) {
+                visibleStartIndex = currentWordIndex === 0 ? 0 : Math.max(0, currentWordIndex - 3);
+                const wordsToDisplay = words.slice(visibleStartIndex, visibleStartIndex + 50);
+                lastDisplayedEndIndex = visibleStartIndex + wordsToDisplay.length;
+
+                typingArea.innerHTML = wordsToDisplay.map((word, index) => {
+                    const wordIndex = visibleStartIndex + index;
+                    const isCurrentWord = wordIndex === currentWordIndex;
+                    const wasIncorrect = incorrectWords[wordIndex] === true;
+                    const isPastWord = wordIndex < currentWordIndex;
+
+                    let classes = 'word';
+                    if (isCurrentWord) classes += ' current-word';
+                    if (wasIncorrect) classes += ' incorrect-word';
+                    if (isPastWord && !wasIncorrect) classes += ' correct-word';
+
+                    return `<span class="${classes}" ${isCurrentWord ? 'id="current-word"' : ''}>${generateWordHTML(word, isCurrentWord)}</span>`;
+                }).join(' ');
+
+                if (currentWordIndex === 0) {
+                    typingArea.scrollTop = 0;
+                    typingArea.scrollLeft = 0;
+                }
+            }
+
             // Update Class States for Words
             const wordElements = typingArea.querySelectorAll('.word');
 
@@ -5287,8 +5312,9 @@
             }
 
             // Update Previous Word
-            if (currentWordIndex > 0 && wordElements[currentWordIndex - 1]) {
-                const prevEl = wordElements[currentWordIndex - 1];
+            const currentWordOffset = currentWordIndex - visibleStartIndex;
+            if (currentWordIndex > 0 && currentWordOffset > 0 && wordElements[currentWordOffset - 1]) {
+                const prevEl = wordElements[currentWordOffset - 1];
                 prevEl.innerHTML = words[currentWordIndex - 1]; // Reset to plain text
 
                 if (incorrectWords[currentWordIndex - 1]) {
@@ -5301,8 +5327,8 @@
             }
 
             // Update Current Word
-            if (wordElements[currentWordIndex]) {
-                const currentEl = wordElements[currentWordIndex];
+            if (wordElements[currentWordOffset]) {
+                const currentEl = wordElements[currentWordOffset];
                 currentEl.classList.add('current-word');
                 currentEl.id = 'current-word';
                 currentEl.innerHTML = generateWordHTML(words[currentWordIndex], true);

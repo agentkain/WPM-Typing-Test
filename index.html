@@ -6237,7 +6237,8 @@
                 input.removeEventListener('input', onFirstInput);
             }, { once: true });
 
-            let updateInterval = setInterval(updateAverageWordTime, 1000);
+            clearInterval(updateInterval);
+            updateInterval = setInterval(updateAverageWordTime, 1000);
 
             // Clear any existing AFK timer
             clearInterval(afkInterval);
@@ -7244,150 +7245,177 @@
 
         input.addEventListener('input', resetAfkTimer);
 
-        input.addEventListener('input', (e) => {
-            if (testActive) {
-                // Reset AFK timer
-                resetAfkTimer();
+        function isWordSubmitEvent(event) {
+            return event.inputType === 'insertLineBreak'
+                || event.data === ' '
+                || /\s$/.test(event.target.value);
+        }
 
-                if (!timerStarted) {
-                    startTime = new Date();
-                    startTimerCountdown();
-                }
+        function updateCurrentWordState(typedWord, currentWord) {
+            const currentWordElement = document.getElementById('current-word');
+            const isPrefixCorrect = currentWord.startsWith(typedWord);
 
-                const typedWord = e.target.value.trim();
-                const currentWord = words[currentWordIndex];
-                const currentWordElement = document.getElementById('current-word');
-
-                const isCorrect = currentWord.startsWith(typedWord);
-                currentWordElement.classList.toggle('incorrect', !isCorrect);
-
-                // Update heatmap for the last typed character
-                if (e.inputType === 'insertText' && e.data) {
-                    updateHeatmap(e.data.toLowerCase(), isCorrect);
-                } else if (e.inputType === 'deleteContentBackward') {
-                    updateHeatmap('backspace', true); // Always consider backspace as correct
-                }
-
-                // Record WPM data every second
-                const currentTime = (Date.now() - startTime) / 1000;
-                if (Math.floor(currentTime) > wpmData.length) {
-                    const elapsedTimeInMinutes = currentTime / 60;
-                    const currentWpm = Math.round(correctWords / elapsedTimeInMinutes);
-                    wpmData.push({ time: currentTime, wpm: currentWpm });
-                }
-
-                if (!isCorrect || (e.data === ' ' && !checkWord(typedWord, currentWord))) {
-                    errorTimeStamps.push({
-                        time: (Date.now() - startTime) / 1000,
-                        wpm: Math.round(correctWords / ((Date.now() - startTime) / 60000)),
-                        errorWord: typedWord,
-                        correctWord: currentWord
-                    });
-                }
-
-                if (e.data === ' ' || e.inputType === 'insertLineBreak') {
-                    const isCorrect = checkWord(typedWord, currentWord);
-
-                    // Track whether this word was typed correctly
-                    incorrectWords[currentWordIndex] = !isCorrect;
-
-                    if (isCorrect) {
-                        correctWords++;
-                        visualizer.updatePerformance(calculateWPM(), calculateAccuracy(), true);
-                    } else {
-                        visualizer.updatePerformance(calculateWPM(), calculateAccuracy(), false);
-                    }
-
-                    // Handle word completion
-                    const wordTime = (Date.now() - wordStartTime) / 1000;
-                    const isError = !checkWord(typedWord, currentWord);
-
-                    if (!sessionProblematicWords[currentWord]) {
-                        sessionProblematicWords[currentWord] = {
-                            errors: 0,
-                            total: 0,
-                            totalTime: 0,
-                            totalKeystrokes: 0
-                        };
-                    }
-                    sessionProblematicWords[currentWord].errors += isError ? 1 : 0;
-                    sessionProblematicWords[currentWord].total += 1;
-                    sessionProblematicWords[currentWord].totalTime += wordTime;
-                    sessionProblematicWords[currentWord].totalKeystrokes += currentWordKeystrokes;
-                    sessionProblematicWords[currentWord].keystrokeErrors += currentWordKeystrokeErrors;
-
-                    totalWords++;
-                    currentWordIndex++;
-                    e.target.value = '';
-
-                    updateAverageWordTime(true);
-
-                    currentWordKeystrokes = 0;
-                    currentWordCorrectKeystrokes = 0;
-                    currentWordKeystrokeErrors = 0;
-                    wordStartTime = Date.now();
-
-                    if (currentDifficulty === 'custom') {
-                        if (currentWordIndex >= words.length) {
-                            // Reset to the beginning of the custom text
-                            currentWordIndex = 0;
-                            words = originalCustomText.split(/\s+/);
-                            if (getPunctuationState()) {
-                                words = addRandomPunctuation(words);
-                            }
-                            incorrectWords = {}; // Reset visual errors
-                        }
-                    }
-
-                    displayWords(); // This will handle displaying words without refilling
-                }
-
-                // Count keystrokes
-                if (e.inputType === 'insertText') {
-                    currentWordKeystrokes++;
-                    totalKeystrokes++;
-                    if (e.data !== ' ') {  // Exclude space from accuracy calculation
-                        if (isCorrect) {
-                            currentWordCorrectKeystrokes++;
-                            correctKeystrokes++;
-                        } else {
-                            incorrectKeystrokes++;
-                            // Update heatmap only for incorrect keystrokes
-                            const char = e.data.toLowerCase();
-                            updateHeatmap(char);
-                            currentWordKeystrokeErrors++;
-                        }
-                    } else {
-                        // If it's a space, don't count it for accuracy, but do count it for total keystrokes
-                        currentWordCorrectKeystrokes++;  // Consider space as correct for the current word
-                        correctKeystrokes++;  // Consider space as correct overall
-                    }
-                } else if (e.inputType === 'deleteContentBackward') {
-                    if (currentWordKeystrokes > 0) {
-                        currentWordKeystrokes--;
-                        totalKeystrokes--;
-                    }
-                    if (currentWordCorrectKeystrokes > 0) {
-                        currentWordCorrectKeystrokes--;
-                        correctKeystrokes--;
-                    }
-                    incorrectKeystrokes++;
-
-                    // Update heatmap for backspace
-                    updateHeatmap('backspace');
-                    currentWordKeystrokeErrors++;
-                }
-
-                // Update stats after each input
-                updateStats();
-                displayWords();
-
-                // End test logic
-                if (timer <= 0) {
-                    endTest();
-                }
+            if (currentWordElement) {
+                currentWordElement.classList.toggle('incorrect', !isPrefixCorrect);
             }
-        });
+
+            return isPrefixCorrect;
+        }
+
+        function recordWpmSample() {
+            const currentTime = (Date.now() - startTime) / 1000;
+            if (Math.floor(currentTime) > wpmData.length) {
+                const elapsedTimeInMinutes = currentTime / 60;
+                const currentWpm = Math.round(correctWords / elapsedTimeInMinutes);
+                wpmData.push({ time: currentTime, wpm: currentWpm });
+            }
+        }
+
+        function recordTypingError(typedWord, currentWord) {
+            errorTimeStamps.push({
+                time: (Date.now() - startTime) / 1000,
+                wpm: Math.round(correctWords / ((Date.now() - startTime) / 60000)),
+                errorWord: typedWord,
+                correctWord: currentWord
+            });
+        }
+
+        function recordKeystroke(event, isPrefixCorrect) {
+            if (event.inputType === 'insertText') {
+                totalKeystrokes++;
+
+                if (event.data && /\s/.test(event.data)) {
+                    correctKeystrokes++;
+                    updateHeatmap('space', true);
+                    return;
+                }
+
+                currentWordKeystrokes++;
+                if (isPrefixCorrect) {
+                    currentWordCorrectKeystrokes++;
+                    correctKeystrokes++;
+                    if (event.data) {
+                        updateHeatmap(event.data.toLowerCase(), true);
+                    }
+                } else {
+                    incorrectKeystrokes++;
+                    currentWordKeystrokeErrors++;
+                    if (event.data) {
+                        updateHeatmap(event.data.toLowerCase(), false);
+                    }
+                }
+            } else if (event.inputType === 'deleteContentBackward') {
+                if (currentWordKeystrokes > 0) {
+                    currentWordKeystrokes--;
+                    totalKeystrokes--;
+                }
+                if (currentWordCorrectKeystrokes > 0) {
+                    currentWordCorrectKeystrokes--;
+                    correctKeystrokes--;
+                }
+                incorrectKeystrokes++;
+                currentWordKeystrokeErrors++;
+                updateHeatmap('backspace', false);
+            }
+        }
+
+        function updateVisualizerPerformance(isCorrectWord) {
+            if (visualizer && typeof visualizer.updatePerformance === 'function') {
+                visualizer.updatePerformance(calculateWPM(), calculateAccuracy(), isCorrectWord);
+            }
+        }
+
+        function completeCurrentWord(typedWord, currentWord) {
+            const isCorrectWord = checkWord(typedWord, currentWord);
+            const wordTime = wordStartTime ? (Date.now() - wordStartTime) / 1000 : 0;
+
+            incorrectWords[currentWordIndex] = !isCorrectWord;
+            if (isCorrectWord) {
+                correctWords++;
+            }
+            updateVisualizerPerformance(isCorrectWord);
+
+            if (!sessionProblematicWords[currentWord]) {
+                sessionProblematicWords[currentWord] = {
+                    errors: 0,
+                    total: 0,
+                    totalTime: 0,
+                    totalKeystrokes: 0,
+                    keystrokeErrors: 0
+                };
+            }
+
+            sessionProblematicWords[currentWord].errors += isCorrectWord ? 0 : 1;
+            sessionProblematicWords[currentWord].total += 1;
+            sessionProblematicWords[currentWord].totalTime += wordTime;
+            sessionProblematicWords[currentWord].totalKeystrokes += currentWordKeystrokes;
+            sessionProblematicWords[currentWord].keystrokeErrors += currentWordKeystrokeErrors;
+
+            totalWords++;
+            currentWordIndex++;
+            input.value = '';
+
+            updateAverageWordTime(true);
+
+            currentWordKeystrokes = 0;
+            currentWordCorrectKeystrokes = 0;
+            currentWordKeystrokeErrors = 0;
+            wordStartTime = Date.now();
+
+            if (currentDifficulty === 'custom' && currentWordIndex >= words.length) {
+                currentWordIndex = 0;
+                words = originalCustomText.split(/\s+/);
+                if (getPunctuationState()) {
+                    words = addRandomPunctuation(words);
+                }
+                incorrectWords = {};
+            }
+
+            displayWords();
+        }
+
+        function handleTypingInput(event) {
+            if (!testActive) {
+                return;
+            }
+
+            resetAfkTimer();
+
+            if (!timerStarted) {
+                startTime = new Date();
+                startTimerCountdown();
+            }
+
+            const currentWord = words[currentWordIndex];
+            if (!currentWord) {
+                return;
+            }
+
+            const typedWord = event.target.value.trim();
+            const isSubmittingWord = isWordSubmitEvent(event);
+            const isPrefixCorrect = updateCurrentWordState(typedWord, currentWord);
+
+            recordKeystroke(event, isPrefixCorrect);
+            recordWpmSample();
+
+            if (!isPrefixCorrect || (isSubmittingWord && !checkWord(typedWord, currentWord))) {
+                recordTypingError(typedWord, currentWord);
+            }
+
+            if (isSubmittingWord) {
+                completeCurrentWord(typedWord, currentWord);
+            } else {
+                displayWords();
+            }
+
+            updateStats();
+
+            if (timer <= 0) {
+                endTest();
+            }
+        }
+
+        input.addEventListener('input', handleTypingInput);
 
 
 

@@ -3598,13 +3598,34 @@
         }
 
         #progressModal .carousel {
-            flex: 1 1 auto;
+            display: block;
+            flex: 0 1 auto;
             height: auto;
             min-height: 0;
+            overflow: visible;
         }
 
         #progressModal .carousel-page {
+            display: none;
+            position: static;
+            left: auto;
+            top: auto;
+            width: 100%;
+            min-width: 0;
+            height: auto;
+            max-height: none;
+            overflow: visible;
             padding: clamp(12px, 3vw, 20px);
+            transform: none;
+            transition: none;
+        }
+
+        #progressModal .carousel-page.active {
+            display: block;
+        }
+
+        #progressModal #page-2 {
+            max-height: none;
         }
 
         .custom-text-modal .options-section,
@@ -5789,7 +5810,8 @@
         }
 
         function showPage(index) {
-            const pages = document.querySelectorAll('.carousel-page');
+            currentPageIndex = index;
+            const pages = document.querySelectorAll('#progressModal .carousel-page');
             pages.forEach((page, i) => {
                 if (i === index) {
                     page.classList.add('active');
@@ -5802,6 +5824,17 @@
                 }
             });
             updateDots();
+            resetProgressModalScroll();
+        }
+
+        function resetProgressModalScroll() {
+            const modal = document.getElementById('progressModal');
+            const modalContent = modal ? modal.querySelector('.modal-content') : null;
+            const activePage = modal ? modal.querySelector('.carousel-page.active') : null;
+
+            if (modal) modal.scrollTop = 0;
+            if (modalContent) modalContent.scrollTop = 0;
+            if (activePage) activePage.scrollTop = 0;
         }
 
         function updateDots() {
@@ -8623,15 +8656,12 @@
 
                 // Reset to the first page
                 currentPage = 0;
-                const pages = document.querySelectorAll('.carousel-page');
-                pages.forEach(page => {
-                    page.style.transform = `translateX(0%)`;
-                });
 
                 // Show the modal
                 const modal = document.getElementById('progressModal');
                 if (modal) {
                     modal.style.display = 'flex';
+                    requestAnimationFrame(resetProgressModalScroll);
                 } else {
                     console.error('Progress modal not found');
                 }
@@ -8880,14 +8910,14 @@
         }
 
         function adjustModalSize() {
-            const scale = getScreenScale();
             const modals = document.querySelectorAll('.modal');
-
             modals.forEach(modal => {
                 const content = modal.querySelector('.modal-content');
-                content.style.transform = `scale(${1 / scale})`;
-                content.style.transformOrigin = 'center center';
-                modal.style.fontSize = `${16 * scale}px`;
+                modal.style.fontSize = '';
+                if (content) {
+                    content.style.transform = '';
+                    content.style.transformOrigin = '';
+                }
             });
         }
 

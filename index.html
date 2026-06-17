@@ -3566,6 +3566,89 @@
             background-color: rgba(0, 0, 0, 0.5);
         }
 
+        /* Final modal sizing pass: keep every dialog inside the viewport. */
+        .modal {
+            box-sizing: border-box;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            padding: clamp(12px, 3vw, 32px);
+        }
+
+        .modal-content,
+        #supportModal .modal-content,
+        .custom-text-modal .modal-content,
+        #progressModal .modal-content,
+        #chartPointModal .modal-content {
+            box-sizing: border-box;
+            width: min(100%, 900px);
+            max-height: calc(100dvh - (clamp(12px, 3vw, 32px) * 2));
+            margin: 0 auto;
+            overflow-y: auto;
+            transform: none;
+        }
+
+        #supportModal .modal-content {
+            width: min(100%, 600px);
+        }
+
+        #progressModal .modal-content {
+            min-height: 0;
+        }
+
+        #progressModal .carousel {
+            flex: 1 1 auto;
+            height: auto;
+            min-height: 0;
+        }
+
+        #progressModal .carousel-page {
+            padding: clamp(12px, 3vw, 20px);
+        }
+
+        .custom-text-modal .options-section,
+        .modal-buttons {
+            flex-wrap: wrap;
+        }
+
+        .custom-text-modal textarea {
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        #result-content [style*="gap: 200px"],
+        #chart-point-content [style*="gap: 200px"] {
+            gap: clamp(16px, 8vw, 80px) !important;
+            flex-wrap: wrap !important;
+        }
+
+        #result-content [style*="height: 350px"],
+        #chart-point-content [style*="height: 350px"] {
+            height: min(350px, 45vh) !important;
+        }
+
+        body.black-white-mode .modal-content,
+        body.black-white-mode #custom-text-modal .modal-content,
+        body.black-white-mode #progressModal .modal-content {
+            margin: 0 auto;
+            max-height: calc(100dvh - (clamp(12px, 3vw, 32px) * 2));
+            top: auto;
+            transform: none;
+        }
+
+        @media (max-width: 720px) {
+            .custom-text-modal .options-section {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .modal-buttons button {
+                flex-basis: 100%;
+                min-width: 0;
+            }
+        }
+
         #input {
             background: rgba(255, 255, 255, 0.7) !important;
         }
@@ -3666,12 +3749,7 @@
         <p>This typing test is designed for desktop use. Please switch to a desktop device for the best experience.</p>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.1.0"></script>
-    <script
-        src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.0/dist/chartjs-plugin-annotation.min.js"></script>
-
+    <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <canvas id="waveVisualizer"></canvas>
     <h1>Ultimate WPM Typing Speed Test</h1>
     <div id="hide-ui-progress-bar">
@@ -3989,14 +4067,14 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script
-        src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+        defer src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script
-        src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.0.2/dist/chartjs-plugin-annotation.min.js"></script>
-    <script src="https://d3js.org/d3.v5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.5/d3.layout.cloud.min.js"></script>
+        defer src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.0.2/dist/chartjs-plugin-annotation.min.js"></script>
+    <script defer src="https://d3js.org/d3.v5.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.5/d3.layout.cloud.min.js"></script>
     <script>
         let currentPracticePattern = null;
         const achievements = [
@@ -5314,7 +5392,7 @@
         function openCustomTextModal() {
             var modal = document.getElementById("custom-text-modal");
             if (modal) {
-                modal.style.display = "block";
+                modal.style.display = "flex";
                 modal.classList.add('modal-open');
 
                 // Populate problematic words
@@ -6351,7 +6429,13 @@
 
         function initializeVisualizer() {
             const difficultyColor = getDifficultyColor(currentDifficulty);
-            visualizer = new WaveVisualizer(difficultyColor);
+            waveVisualizerUnlocked = localStorage.getItem('waveVisualizerUnlocked') === 'true';
+            document.getElementById('waveVisualizer').style.display = waveVisualizerUnlocked ? 'block' : 'none';
+            document.querySelector('.visualizer-opacity-slider').style.display = waveVisualizerUnlocked ? 'flex' : 'none';
+
+            if (waveVisualizerUnlocked && !visualizer) {
+                visualizer = new WaveVisualizer(difficultyColor);
+            }
         }
 
         function unlockWaveVisualizer() {
@@ -6379,7 +6463,6 @@
             if (!visualizer) {
                 console.log('Creating new WaveVisualizer');
                 visualizer = new WaveVisualizer();
-                visualizer.animate();
             } else {
                 console.log('WaveVisualizer already exists');
             }
@@ -9255,6 +9338,7 @@
 
                     return { word, score: score, difficulty: data.difficulty };
                 })
+                .filter(Boolean)
                 .sort((a, b) => b.score - a.score)
                 .slice(0, count);
 
@@ -9995,11 +10079,13 @@
         }
 
         function initializeVisualizer() {
-            visualizer = new WaveVisualizer();
-            visualizer.animate();
             waveVisualizerUnlocked = localStorage.getItem('waveVisualizerUnlocked') === 'true';
             document.getElementById('waveVisualizer').style.display = waveVisualizerUnlocked ? 'block' : 'none';
             document.querySelector('.visualizer-opacity-slider').style.display = waveVisualizerUnlocked ? 'flex' : 'none';
+
+            if (waveVisualizerUnlocked && !visualizer) {
+                visualizer = new WaveVisualizer(getDifficultyColor(currentDifficulty));
+            }
         }
 
         function loadSavedSettings() {
@@ -10010,7 +10096,6 @@
             loadWordErrorTracker();
             loadSavedFontSize();
             initializeLastKnownValues();
-            initialLoad();
             addButtonEventListeners();
             updateButtonColors();
             initializePunctuationPreference();
@@ -10025,7 +10110,7 @@
 
         function setupSupportModal() {
             document.getElementById('support-icon').addEventListener('click', () => {
-                document.getElementById('supportModal').style.display = 'block';
+                document.getElementById('supportModal').style.display = 'flex';
             });
 
             document.querySelector('#supportModal .support-close-button').addEventListener('click', () => {
@@ -10298,7 +10383,6 @@
 
         function initializeOtherSettings() {
             updateTooltips();
-            filterByTimeRange();
             setupTimeRangeSelector();
             setupDifficultySlider();
             setupTextSizeSelector();
